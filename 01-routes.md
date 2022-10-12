@@ -588,7 +588,8 @@ Se uma instância de modelo correspondente não for encontrada no banco de dados
 
 #### # **Personalizando a lógica de resolução**
 
-Se você deseja definir sua própria lógica de resolução de model binding, você pode usar o método ``Route::bind``. A closure que você passar para o método ``bind`` receberá o valor do segmento URI e deverá retornar a instância da classe que deve ser injetada na rota. Novamente, essa personalização deve ocorrer no método de ``inicialização`` do ``RouteServiceProvider`` do seu aplicativo:
+Se você deseja definir sua própria lógica de resolução de model binding, você pode usar o método ``Route::bind``. A closure que você passar para o método ``bind`` receberá o valor do segmento URI e deverá retornar a instância da classe que deve ser injetada na rota. Novamente, essa personalização deve ocorrer no método de ``boot`` do ``RouteServiceProvider`` do seu aplicativo:
+
 ```php
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -607,7 +608,9 @@ public function boot()
     // ...
 }
 ```
+
 Alternativamente, você pode substituir o método ``resolveRouteBinding`` em seu modelo Eloquent. Este método receberá o valor do segmento URI e deverá retornar a instância da classe que deve ser injetada na rota:
+
 ```php
 /**
  * Retrieve the model for a bound value.
@@ -620,7 +623,9 @@ public function resolveRouteBinding($value, $field = null)
 {
     return $this->where('name', $value)->firstOrFail();
 ```
+
 Se uma rota estiver utilizando o **[escopo de vinculação implícita](https://laravel.com/docs/9.x/routing#implicit-model-binding-scoping)**, o método ``resolveChildRouteBinding`` será usado para resolver a vinculação filha do modelo pai: 
+
 ```php
 /**
  * Retrieve the child model for a bound value.
@@ -635,22 +640,27 @@ public function resolveChildRouteBinding($childType, $value, $field)
     return parent::resolveChildRouteBinding($childType, $value, $field);
 }
 ```
+
 ### # **Rotas substitutas**
 
 Usando o método ``Route::fallback``, você pode definir uma rota que será executada quando nenhuma outra rota corresponder à solicitação recebida.Normalmente, solicitações não tratadas renderizarão automaticamente uma página "404" por meio do manipulador de exceção do seu aplicativo. No entanto, como você normalmente definiria a rota de ``fallback`` em seu arquivo ``routes/web.php``, todos os middlewares no grupo de middlewares da ``web`` serão aplicados à rota. Você pode adicionar middleware adicional a esta rota conforme necessário:
+
 ```php
 Route::fallback(function () {
     //
 });
 ```
-``A rota de fallback deve ser sempre a última rota registrada pelo seu aplicativo.``
+
+> A rota de fallback deve ser sempre a última rota registrada pelo seu aplicativo.
 
 ### # **Limitação de taxa**
 
 #### # **Definindo limitadores de taxa**
+
 O Laravel inclui serviços de limitação de taxa poderosos e personalizáveis ​​que você pode utilizar para restringir a quantidade de tráfego para uma determinada rota ou grupo de rotas. Para começar, você deve definir configurações de limitador de taxa que atendam às necessidades do seu aplicativo. Normalmente, isso deve ser feito no método ``configureRateLimiting`` da classe ``App\Providers\RouteServiceProvider`` do seu aplicativo.
 
-Os limitadores de taxa são definidos usando o método ``for`` da fachada ``RateLimiter``. O método ``for`` aceita um nome de limitador de taxa e um encerramento que retorna a configuração de limite que deve ser aplicada às rotas atribuídas ao limitador de taxa. A configuração de limite são instâncias da classe ``Illuminate\Cache\RateLimiting\Limit``. Essa classe contém métodos "construtores" úteis para que você possa definir rapidamente seu limite. O nome do limitador de taxa pode ser qualquer string que você desejar: 
+Os limitadores de taxa são definidos usando o método ``for`` da fachada ``RateLimiter``. O método ``for`` aceita um nome de limitador de taxa e um `closure` que retorna a configuração de limite que deve ser aplicada às rotas atribuídas ao limitador de taxa. A configuração de limite são instâncias da classe ``Illuminate\Cache\RateLimiting\Limit``. Essa classe contém métodos "construtores" úteis para que você possa definir rapidamente seu limite. O nome do limitador de taxa pode ser qualquer string que você desejar:
+
 ```php
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -668,7 +678,8 @@ protected function configureRateLimiting()
     });
 }
 ```
-Se a solicitação recebida exceder o limite de taxa especificado, uma resposta com um código de status HTTP 429 será retornada automaticamente pelo Laravel. Se você deseja definir sua própria resposta que deve ser retornada por um limite de taxa, você pode usar o método de ``resposta``:
+
+Se a solicitação recebida exceder o limite de taxa especificado, uma resposta com um código de status HTTP 429 será retornada automaticamente pelo Laravel. Se você deseja definir sua própria resposta que deve ser retornada por um limite de taxa, você pode usar o método ``response``:
 ```php
 RateLimiter::for('global', function (Request $request) {
     return Limit::perMinute(1000)->response(function (Request $request, array $headers) {
@@ -676,7 +687,9 @@ RateLimiter::for('global', function (Request $request) {
     });
 });
 ```
-Como os retornos de chamada do limitador de taxa recebem a instância de solicitação HTTP recebida, você pode criar o limite de taxa apropriado dinamicamente com base na solicitação recebida ou no usuário autenticado:
+
+Como o `callback` de limitador de taxa recebe a solicitação HTTP, você pode criar o limite de taxa apropriado dinamicamente com base na solicitação recebida ou no usuário autenticado:
+
 ```php
 RateLimiter::for('uploads', function (Request $request) {
     return $request->user()->vipCustomer()
@@ -686,6 +699,7 @@ RateLimiter::for('uploads', function (Request $request) {
 ```
 
 #### # **Limites de taxa de segmentação**
+
 Às vezes você pode querer segmentar os limites de taxa por algum valor arbitrário. Por exemplo, você pode permitir que os usuários acessem uma determinada rota 100 vezes por minuto por endereço IP. Para fazer isso, você pode usar o método ``by`` ao criar seu limite de taxa:
 ```php
 RateLimiter::for('uploads', function (Request $request) {
@@ -704,7 +718,9 @@ RateLimiter::for('uploads', function (Request $request) {
 });
 ```
 #### # **Limites de taxa múltipla**
+
 Se necessário, você pode retornar uma matriz de limites de taxa para uma determinada configuração de limitador de taxa. Cada limite de taxa será avaliado para a rota com base na ordem em que são colocados na matriz:
+
 ```php
 RateLimiter::for('login', function (Request $request) {
     return [
@@ -713,7 +729,9 @@ RateLimiter::for('login', function (Request $request) {
     ];
 });
 ```
+
 ### # **Anexando limitadores de taxa a rotas**
+
 Limitadores de taxa podem ser anexados a rotas ou grupos de rotas usando o **[middleware](https://laravel.com/docs/9.x/middleware)** de ``aceleração``. O middleware de aceleração aceita o nome do limitador de taxa que você deseja atribuir à rota:
 ```php
 Route::middleware(['throttle:uploads'])->group(function () {
