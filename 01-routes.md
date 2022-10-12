@@ -732,7 +732,7 @@ RateLimiter::for('login', function (Request $request) {
 
 ### # **Anexando limitadores de taxa a rotas**
 
-Limitadores de taxa podem ser anexados a rotas ou grupos de rotas usando o **[middleware](https://laravel.com/docs/9.x/middleware)** de ``aceleração``. O middleware de aceleração aceita o nome do limitador de taxa que você deseja atribuir à rota:
+Limitadores de taxa podem ser anexados a rotas ou grupos de rotas usando o **[middleware](https://laravel.com/docs/9.x/middleware)** ``throttle``. O middleware throttle aceita o nome do limitador de taxa que você deseja atribuir à rota:
 ```php
 Route::middleware(['throttle:uploads'])->group(function () {
     Route::post('/audio', function () {
@@ -744,20 +744,26 @@ Route::middleware(['throttle:uploads'])->group(function () {
     });
 });
 ```
+
 #### # **Acelerando com o Redis**
-Normalmente, o middleware de ``aceleração`` é mapeado para a classe ``Illuminate\Routing\Middleware\ThrottleRequests``. Esse mapeamento é definido no kernel HTTP do seu aplicativo ``(App\Http\Kernel)``. No entanto, se você estiver usando o Redis como o driver de cache do seu aplicativo, convém alterar esse mapeamento para usar a classe ``Illuminate\Routing\Middleware\ThrottleRequestsWithRedis``. Esta classe é mais eficiente no gerenciamento da limitação de taxa usando o Redis: 
+
+Normalmente, o middleware ``throttle`` é mapeado para a classe ``Illuminate\Routing\Middleware\ThrottleRequests``. Esse mapeamento é definido no kernel HTTP do seu aplicativo ``(App\Http\Kernel)``. No entanto, se você estiver usando o Redis como o driver de cache do seu aplicativo, convém alterar esse mapeamento para usar a classe ``Illuminate\Routing\Middleware\ThrottleRequestsWithRedis``. Esta classe é mais eficiente no gerenciamento da limitação de taxa usando o Redis: 
+
 ```php
 'throttle' => \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class,
 ```
+
 ### # **Falsificação de método de formulário**
-Os formulários HTML não suportam as ações ``PUT``, ``PATCH`` ou ``DELETE``. Portanto, ao definir rotas ``PUT``, ``PATCH`` ou ``DELETE`` que são chamadas de um formulário HTML, você precisará adicionar um campo ``_method`` oculto ao formulário. O valor enviado com o campo ``_method`` será utilizado como método de requisição HTTP:
+
+Os formulários HTML não suportam as ações ``PUT``, ``PATCH`` ou ``DELETE``. Portanto, ao definir rotas ``PUT``, ``PATCH`` ou ``DELETE`` que são chamadas de um formulário HTML, você precisa definir um input do tipo `hidden` e nome `_method` no formulário. O valor de `_method` enviado será utilziado como o método da requisição HTTP:
+
 ```php
 <form action="/example" method="POST">
     <input type="hidden" name="_method" value="PUT">
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 </form>
 ```
-Por conveniência, você pode usar ``@method`` **[Blade directive](https://laravel.com/docs/9.x/blade)** para gerar o campo de entrada ``_method``:
+Por conveniência, você pode usar a [diretiva blade](https://laravel.com/docs/9.x/blade) `@method` para gerar o campo de entrada ``_method``:
 
 ```php
 <form action="/example" method="POST">
@@ -765,8 +771,11 @@ Por conveniência, você pode usar ``@method`` **[Blade directive](https://larav
     @csrf
 </form>
 ```
+
 ### # **Acessando a Rota Atual**
+
 Você pode usar os métodos ``current``, ``currentRouteName`` e ``currentRouteAction`` na fachada ``Route`` para acessar informações sobre a rota que trata a solicitação recebida:
+
 ```php
 use Illuminate\Support\Facades\Route;
  
@@ -774,15 +783,19 @@ $route = Route::current(); // Illuminate\Routing\Route
 $name = Route::currentRouteName(); // string
 $action = Route::currentRouteAction(); // string
 ```
+
 Você pode consultar a documentação da API para a **[classe subjacente da fachada Route](https://laravel.com/api/9.x/Illuminate/Routing/Router.html)** e da **[instância Route](https://laravel.com/api/9.x/Illuminate/Routing/Route.html)** para revisar todos os métodos disponíveis no roteador e nas classes de rota.
 
 ### # **Compartilhamento de recursos entre origens (CORS)**
+
 O Laravel pode responder automaticamente às solicitações HTTP CORS ``OPTIONS`` com valores que você configura. Todas as configurações do CORS podem ser configuradas no arquivo de configuração ``config/cors.php`` da sua aplicação. As solicitações ``OPTIONS`` serão tratadas automaticamente pelo **[middleware](https://laravel.com/docs/9.x/middleware)** ``HandleCors`` que é incluído por padrão em sua pilha de middleware global. Sua pilha de middleware global está localizada no kernel HTTP do seu aplicativo ``(App\Http\Kernel)``.
 
-Para obter mais informações sobre cabeçalhos CORS e CORS, consulte a **[documentação da Web do MDN sobre CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#the_http_response_headers)**.
+> Para obter mais informações sobre cabeçalhos CORS e CORS, consulte a **[documentação da Web do MDN sobre CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#the_http_response_headers)**.
 
 ### # **Cache de rota**
+
 Ao implantar seu aplicativo em produção, você deve aproveitar o cache de rota do Laravel. O uso do cache de rotas diminuirá drasticamente o tempo necessário para registrar todas as rotas do seu aplicativo. Para gerar um cache de rota, execute o comando Artisan ``route:cache``:
+
 ```php
 php artisan route:cache
 ```
