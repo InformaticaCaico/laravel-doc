@@ -331,8 +331,8 @@ public function handle($request, Closure $next)
 ```
 ## # **Grupos de rotas**
 
-Os grupos de rotas permitem que você compartilhe atributos de rota, como middleware, em um grande número de rotas sem precisar definir esses atributos em cada rota individual.
-Grupos aninhados tentam "mesclar" atributos de forma inteligente com seu grupo pai. Middleware e `where` as condições são mescladas enquanto os nomes e prefixos são anexados. Delimitadores de namespace e barras em prefixos de URI são adicionados automaticamente quando apropriado.
+Os grupos de rotas permitem que você compartilhe atributos entre as rotas, como middleware, em um grande número de rotas sem precisar definir esses atributos em cada rota individual.
+Grupos aninhados tentam "mesclar" atributos de forma inteligente com seu grupo pai. Middleware e condições `where` são mescladas enquanto os nomes e prefixos são anexados. Delimitadores de namespace e barras em prefixos de URI são adicionados automaticamente quando apropriado.
 
 ### # **Middleware**
 
@@ -341,16 +341,18 @@ Para atribuir `middleware` a todas as rotas dentro de um grupo, você pode usar 
 ```php
 Route::middleware(['first', 'second'])->group(function () {
     Route::get('/', function () {
-        // Uses first & second middleware...
+        // Esta rota usa os dois middleware 'first' e 'second'
     });
  
     Route::get('/user/profile', function () {
-        // Uses first & second middleware...
+        // Esta rota usa os dois middleware 'first' e 'second'
     });
 });
 ```
 ### # **Controladores**
+
 Se um grupo de rotas utilizar o mesmo `controlador`, você poderá usar o método do `controlador` para definir o controlador comum para todas as rotas dentro do grupo. Então, ao definir as rotas, você só precisa fornecer o método do controlador que eles invocam:
+
 ```php
 use App\Http\Controllers\OrderController;
  
@@ -359,8 +361,11 @@ Route::controller(OrderController::class)->group(function () {
     Route::post('/orders', 'store');
 });
 ```
+
 ### # **Roteamento de subdomínio**
+
 Os grupos de rotas também podem ser usados para lidar com o roteamento de subdomínio. Os subdomínios podem receber parâmetros de rota assim como URIs de rota, permitindo que você capture uma parte do subdomínio para uso em sua rota ou controlador. O subdomínio pode ser especificado chamando o método de domínio antes de definir o grupo:
+
 ```php
 Route::domain('{account}.example.com')->group(function () {
     Route::get('user/{id}', function ($account, $id) {
@@ -368,9 +373,13 @@ Route::domain('{account}.example.com')->group(function () {
     });
 });
 ```
-Para garantir que suas rotas de subdomínio sejam alcançáveis, você deve registrar as rotas de subdomínio antes de registrar as rotas de domínio raiz. Isso impedirá que as rotas de domínio raiz sobrescrevam rotas de subdomínio que tenham o mesmo caminho de URI.
+
+> Para garantir que suas rotas de subdomínio sejam alcançáveis, você deve registrar as rotas de subdomínio antes de registrar as rotas de domínio raiz. Isso impedirá que as rotas de domínio raiz sobrescrevam rotas de subdomínio que tenham o mesmo caminho de URI.
+
 ### # **Prefixos de rota**
+
 O método `prefix` pode ser usado para prefixar cada rota no grupo com um determinado URI. Por exemplo, você pode querer prefixar todos os URIs de rota dentro do grupo com `admin`:
+
 ```php
 Route::prefix('admin')->group(function () {
     Route::get('/users', function () {
@@ -378,8 +387,12 @@ Route::prefix('admin')->group(function () {
     });
 });
 ```
+
 ### # **Prefixos de nome de rota**
-O método `name` pode ser usado para prefixar cada nome de rota no grupo com uma determinada string. Por exemplo, você pode querer prefixar todos os nomes da rota agrupada com `admin`. A string fornecida é prefixada para o nome da rota exatamente como é especificado, portanto, teremos certeza de fornecer o trailing . caractere no prefixo:
+
+
+O método `name` pode ser usado para prefixar cada nome de rota no grupo com uma determinada string. Por exemplo, você pode querer prefixar todos os nomes da rota agrupada com `admin`. A string fornecida é prefixada para o nome da rota exatamente como é especificado, portanto, teremos certeza de fornecer o trailing `.` caractere no prefixo:
+
 ```php
 Route::name('admin.')->group(function () {
     Route::get('/users', function () {
@@ -387,11 +400,15 @@ Route::name('admin.')->group(function () {
     })->name('users');
 });
 ```
+
 ## # **Vinculação do modelo de rota**
+
 Ao injetar um ID de modelo em uma rota ou ação do controlador, você frequentemente consultará o banco de dados para recuperar o modelo que corresponde a esse ID. A vinculação do modelo de rota do laravel fornece um meio coveniente de injetar automaticamente as instâncias do modelo diretamente em suas rotas. Por exemplo, ao invés de injetar o ID de um usuário, você pode injetar toda a instância do modelo de ``usuário`` que corresponde ao ID fornecido.
 
 ### # **Vinculação implícita**
+
 O Laravel resolve automaticamente os modelos do Eloquent definidos em rotas ou ações do controlador cujos nomes de variáveis tipificadas correspondem a um nome de segmento de rota. Por Exemplo:
+
 ```php
 use App\Models\User;
  
@@ -399,18 +416,19 @@ Route::get('/users/{user}', function (User $user) {
     return $user->email;
 });
 ```
-Como a variável ``$user`` é tipificada como o modelo ``App\Models\User`` Eloquent e o nome da variável corresponde ao segmento URI ``{user}``, o Laravel injetará automaticamente a instância do modelo que possui um ID correspondente ao valor correspondente do URI de solicitação. Se uma instância de modelo correspondente não for encontrada no banco de dados, uma resposta HTTP 404 será gerada automaticamente.
 
-Obviamente, a vinculação implícita também é possível ao usar metódos do controlador. Novamente, Novamente, observe que o segmento URI {user} corresponde à variável $user no controlador que contém uma dica de tipo App\Models\User:
+Como a variável ``$user`` é tipificada como o modelo do Eloquent ``App\Models\User`` e o nome da variável corresponde ao segmento URI ``{user}``, o Laravel injetará automaticamente a instância do modelo que possui um ID correspondente ao valor correspondente do URI de solicitação. Se uma instância de modelo correspondente não for encontrada no banco de dados, uma resposta HTTP 404 será gerada automaticamente.
+
+Obviamente, a vinculação implícita também é possível ao usar metódos do controlador. Novamente, observe que o segmento URI {user} corresponde à variável $user no controlador que contém uma dica de tipo App\Models\User:
 
 ```php
 use App\Http\Controllers\UserController;
 use App\Models\User;
  
-// Route definition...
+// Rota definida
 Route::get('/users/{user}', [UserController::class, 'show']);
  
-// Controller method definition...
+// Método do controlador que vincula modelo
 public function show(User $user)
 {
     return view('user.profile', ['user' => $user]);
@@ -418,7 +436,9 @@ public function show(User $user)
 ```
 
 #### # **Exluir modelos temporariamente**
-Tipicamente, a vinculação de modelo implícita não recuperará modelos que foram excluídos de forma reversível. No entanto, você pode instruir a vinculação implícita para recuperar esses modelos encadeando o método ``withTrashed`` na definição da sua rota:`
+
+Tipicamente, a vinculação de modelo implícita não recuperará modelos que foram excluídos de forma reversível (`soft delete`). No entanto, você pode instruir a vinculação implícita para recuperar esses modelos encadeando o método ``withTrashed`` na definição da sua rota:
+
 ```php
 use App\Models\User;
  
@@ -426,8 +446,11 @@ Route::get('/users/{user}', function (User $user) {
     return $user->email;
 })->withTrashed();
 ```
+
 #### # **Customizando a chave**
+
 Às vezes você pode querer resolver modelos do Eloquent usando uma coluna diferente de ``id``. Para fazer isso, você pode especificar a coluna na definição do parâmetro de rota:
+
 ```php
 use App\Models\Post;
  
@@ -435,7 +458,9 @@ Route::get('/posts/{post:slug}', function (Post $post) {
     return $post;
 });
 ```
+
 Se você deseja que a vinculação de modelo sempre use uma coluna de banco de dados diferente de id ao recuperar uma determinada classe de modelo, você pode substituir o método ``getRouteKeyName`` no modelo Eloquent:
+
 ```php
 /**
  * Get the route key for the model.
@@ -447,8 +472,11 @@ public function getRouteKeyName()
     return 'slug';
 }
 ```
+
 #### # **Chaves e escopo personalizados**
+
 Ao vincular implicitamente vários modelos Eloquent em uma única definição de rota, você pode desejar definir o escopo do segundo modelo Eloquent de forma que ele seja um filho do modelo Eloquent anterior. Por exemplo, considere esta definição de rota que recupera uma postagem de blog por slug para um usuário específico:
+
 ```php
 use App\Models\Post;
 use App\Models\User;
@@ -457,9 +485,11 @@ Route::get('/users/{user}/posts/{post:slug}', function (User $user, Post $post) 
     return $post;
 });
 ```
+
 Ao usar uma associação implícita com chave personalizada como um parâmetro de rota aninhado, O Laravel automaticamente fará o escopo da consulta para recuperar o modelo aninhado por seu pai usando convenções para adivinhar o nome do relacionamento no pai. Nesse caso, será assumido que o modelo ``User`` tem um relacionamento chamado ``posts`` (a forma plural do nome do parâmetro de rota) que pode ser usado para recuperar o modelo ``Post``.
 
 Se desejar, você pode instruir o Laravel a definir o escopo de ligações "filhos" mesmo quando uma chave personalizada não for fornecida. Para fazer isso, você pode invocar o método ``scopeBindings`` ao definir sua rota:
+
 ```php
 use App\Models\Post;
 use App\Models\User;
@@ -468,7 +498,9 @@ Route::get('/users/{user}/posts/{post}', function (User $user, Post $post) {
     return $post;
 })->scopeBindings();
 ```
+
 Ou você pode instruir um grupo inteiro de definições de rota para usar associações com escopo:
+
 ```php
 Route::scopeBindings()->group(function () {
     Route::get('/users/{user}/posts/{post}', function (User $user, Post $post) {
@@ -477,7 +509,9 @@ Route::scopeBindings()->group(function () {
 });
 ```
 #### # **Personalizando o comportamento do modelo ausente**
+
 Normalmente, uma resposta HTTP 404 será gerada se um modelo vinculado implicitamente não for encontrado. No entanto, você pode personalizar esse comportamento chamando o método ``ausente`` ao definir sua rota. O método ``ausente`` aceita um encerramento que será invocado se um modelo vinculado implicitamente não puder ser encontrado:
+
 ```php
 use App\Http\Controllers\LocationsController;
 use Illuminate\Http\Request;
@@ -489,8 +523,11 @@ Route::get('/locations/{location:slug}', [LocationsController::class, 'show'])
             return Redirect::route('locations.index');
         });
 ```
+
 ### # **Ligação de enumeração implícita**
+
 O PHP 8.1 introduziu suporte para **[Enums](https://www.php.net/manual/en/language.enumerations.backed.php)**. Para complementar esse recurso, o Laravel permite que você digite um **[backed Enum](https://www.php.net/manual/en/language.enumerations.backed.php)** em sua definição de rota e o Laravel só invocará a rota se esse segmento de rota corresponder a um valor Enum válido. Caso contrário, uma resposta HTTP 404 será retornada automaticamente. Por exemplo, dado o seguinte Enum:
+
 ```php
 <?php
  
@@ -502,7 +539,9 @@ enum Category: string
     case People = 'people';
 }
 ```
+
 Você pode definir uma rota que só será invocada se o segmento de rota ``{category}`` for ``fruits`` ou ``people``. Caso contrário, o Laravel retornará uma resposta HTTP 404:
+
 ```php
 use App\Enums\Category;
 use Illuminate\Support\Facades\Route;
@@ -510,8 +549,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/categories/{category}', function (Category $category) {
     return $category->value;
 ```
+
 ### # **Vinculação explícita**
+
 Você não é obrigado a usar a resolução de modelo implícita e baseada em convenção do Laravel para usar a associação de modelo. Você também pode definir explicitamente como os parâmetros de rota correspondem aos modelos. Para registrar uma ligação explícita, use o método ``model`` do roteador para especificar a classe de um determinado parâmetro. Você deve definir suas associações de modelo explícitas no início do método de ``inicialização`` de sua classe ``RouteServiceProvider``:
+
+
 ```php
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -528,7 +571,9 @@ public function boot()
     // ...
 }
 ```
+
 Em seguida, defina uma rota que contenha um parâmetro ``{user}``:
+
 ```php
 use App\Models\User;
  
@@ -536,6 +581,7 @@ Route::get('/users/{user}', function (User $user) {
     //
 });
 ```
+
 Como vinculamos todos os parâmetros ``{user}`` ao modelo ``App\Models\User``, uma instância dessa classe será injetada na rota. Assim, por exemplo, uma solicitação para ``users/1`` injetará a instância ``User`` do banco de dados que possui um ID de ``1``.
 
 Se uma instância de modelo correspondente não for encontrada no banco de dados, uma resposta HTTP 404 será gerada automaticamente.
