@@ -11,19 +11,22 @@ Route::get('/greeting', function () {
     return 'Hello World';
 });
 ```
-#### #**Os arquivos de rota padrão**
-Toda rota no Laravel é definido dentro do seu arquivo rotas, que é localizado no diretório `rotas`. Esses arquivos são carregados automaticamente pelo sua aplicação `App\Providers\RouteServiceProvider`. O `routes/web.php` arquivo que são para sua interface web. Essas rotas são atribuídas ao grupo de middleware da `web`, fornece recursos como estado de sessão e proteção CSRF. As rotas em `routes/api.php` não tem estado e são atribuídos o grupo de middleware `api`.
+#### # **Os arquivos de rota padrão**
+Toda rota no Laravel é definida dentro do arquivo de rotas, que é localizado no diretório `rotas/`. Esses arquivos são carregados automaticamente pelo `App\Providers\RouteServiceProvider` da sua aplicação. O arquivo `routes/web.php` define rotas para sua interface web. Essas rotas são atribuídas ao grupo de middleware da `web`, fornece recursos como *estado de sessão* e *proteção CSRF*. As rotas em `routes/api.php` não tem estado e são atribuídos o grupo de middleware `api`.
 
-Para a maioria das aplicações, você irá começar definindo rotas no seu arquivo `routes/web.php`. As rotas definidas em `routes/web.php` pode ser acessada entrando na rota definida na URL pelo seu browser. Por exemplo, você pode acessar a seguinte rota navegando no  http://example.com/user no seu browser: 
+Para a maioria das aplicações, você começará definindo rotas no seu arquivo `routes/web.php`. As rotas definidas em `routes/web.php` podem ser acessada digitando a URL no seu browser. Por exemplo, você pode acessar a seguinte rota navegando no `http://example.com/user` de seu browser: 
 
 ``` php
 use App\Http\Controllers\UserController;
  
 Route::get('/user', [UserController::class, 'index']);
 ```
-As rotas definidas no arquivo routes/api.php são aninhadas em um grupo de rotas pelo RouteServiceProvider. Dentro desse grupo, o prefixo /api URI é aplicado automaticamente para que você não precise aplicá-lo manualmente a todas as rotas do arquivo. Você pode modificar o prefixo e outras opções de grupo de rotas modificando sua classe RouteServiceProvider.
+As rotas definidas no arquivo routes/api.php são aninhadas em um grupo de rotas pelo `RouteServiceProvider`. Dentro desse grupo, o prefixo /api URI é aplicado automaticamente para que você não precise aplicá-lo manualmente a todas as rotas do arquivo. Você pode modificar o prefixo e outras opções de grupo de rotas modificando sua classe `RouteServiceProvider`.
+
 #### # **Métodos de roteador disponíveis**
+
 O roteador permite registrar rotas que respondem a qualquer verbo HTTP:
+
 ``` php
 Route::get($uri, $callback);
 Route::post($uri, $callback);
@@ -42,9 +45,12 @@ Route::any('/', function () {
     //
 });
 ```
-Ao definir várias rotas que compartilham o mesmo URI, as rotas que usam os métodos `get`, `post`, `put`, `patch`, `delete` e `options` devem ser definidas antes das rotas usando os métodos `any`, `match` e `redirect`. Isso garante que a solicitação recebida seja correspondida com a rota correta.
+
+> Ao definir várias rotas que compartilham o mesmo URI, as rotas que usam os métodos `get`, `post`, `put`, `patch`, `delete` e `options` devem ser definidas antes das rotas usando os métodos `any`, `match` e `redirect`. Isso garante que a solicitação recebida seja correspondida com a rota correta.
+
 #### # **Injeção de dependência**
-Você pode indicar quaisquer dependências exigidas pela sua rota na assinatura de retorno de chamada da sua rota. As dependências declaradas serão automaticamente resolvidas e injetadas no callback pelo container de `serviço Laravel`. Por exemplo, você pode digitar a classe `Illuminate\Http\Request` para que a solicitação HTTP atual seja automaticamente injetada em seu retorno de chamada de rota:
+Você pode indicar quaisquer dependências exigidas pela sua rota na assinatura da função de *`callback`* da sua rota. As dependências declaradas serão automaticamente resolvidas e injetadas no callback pelo container de `serviço Laravel`. Por exemplo, você pode digitar a classe `Illuminate\Http\Request` para que a solicitação HTTP atual seja automaticamente injetada em seu retorno de chamada de rota:
+
 ```php
 use Illuminate\Http\Request;
  
@@ -52,6 +58,7 @@ Route::get('/users', function (Request $request) {
     // ...
 });
 ```
+
 #### # **Proteção CSRF**
 Lembre-se de que quaisquer formulários HTML apontando para rotas `POST`, `PUT`, `PATCH` ou `DELETE` definidos no arquivo de rotas da `web` devem incluir um campo de token CSRF. Caso contrário, o pedido será rejeitado. Você pode ler mais sobre a proteção CSRF no https://laravel.com/docs/9.x/csrf:
 ```php
@@ -61,65 +68,95 @@ Lembre-se de que quaisquer formulários HTML apontando para rotas `POST`, `PUT`,
 </form>
 ```
 ### # **Redirecionar Rotas**
+
 Se você estiver definindo uma rota que redireciona para outro URI, você pode usar o método `Route::redirect`. Este método fornece um atalho conveniente para que você não precise definir uma rota ou controlador completo para realizar um redirecionamento simples:
+
 ```php
 Route::redirect('/here', '/there');
 ```
+
 Por padrão, `Route::redirect` retorna um código de status `302`. Você pode personalizar o código de status usando o terceiro parâmetro opcional:
+
 ```php
 Route::redirect('/here', '/there', 301);
 ```
+
 Ou, você pode usar o método `Route::permanentRedirect` para retornar um código de status `301`:
 ```php
 Route::permanentRedirect('/here', '/there');
 ```
-Ao usar parâmetros de rota em rotas de redirecionamento, os seguintes parâmetros são reservados pelo Laravel e não podem ser usados: `destino` e `status`.
+
+> Ao usar parâmetros de rota em rotas de redirecionamento, os seguintes parâmetros são reservados pelo Laravel e não podem ser usados: `destino` e `status`.
+
+
 ### # **Ver Rotas**
-Se sua rota precisar apenas retornar uma `visualização`, você pode usar o método `Route::view`. Assim como o método de `redirecionamento`, esse método fornece um atalho simples para que você não precise definir uma rota ou controlador completo. O método de `exibição` aceita um URI como seu primeiro argumento e um nome de exibição como seu segundo argumento. Além disso, você pode fornecer uma matriz de dados para passar para a exibição como um terceiro argumento opcional:
+Se sua rota precisar apenas retornar uma `view`, você pode usar o método `Route::view`. Assim como o método de `redirecionamento`, esse método fornece um atalho simples para que você não precise definir uma rota ou controlador completo. O método de `view` aceita um URI como seu primeiro argumento e um nome de uma `view` como seu segundo argumento. Além disso, você pode fornecer um *array* de dados para passar para a `view` como um terceiro argumento opcional:
+
 ```php
 Route::view('/welcome', 'welcome');
  
 Route::view('/welcome', 'welcome', ['name' => 'Taylor']);
 ```
-Ao usar parâmetros de rota em rotas de visualização, os seguintes parâmetros são reservados pelo Laravel e não podem ser usados: `visualização`, `dados`, `status` e `cabeçalhos`.
+
+> Ao usar parâmetros de rota em rotas de view, os seguintes parâmetros são reservados pelo Laravel e não podem ser usados: `visualização`, `dados`, `status` e `cabeçalhos`.
+
+
 ### # **A Lista de Rotas**
-O comando route:list Artisan pode fornecer facilmente uma visão geral de todas as rotas definidas pelo seu aplicativo:
+O comando do Artinsa `route:list` fornece uma visão geral de todas as rotas definidas pelo seu aplicativo:
+
 ```php
 php artisan route:list
 ```
+
 Por padrão, o middleware de rota atribuído a cada rota não será exibido na saída route:list; no entanto, você pode instruir o Laravel a exibir o middleware de rota adicionando a opção -v ao comando:
+
 ```php
 php artisan route:list -v
 ```
+
 Você também pode instruir o Laravel a mostrar apenas as rotas que começam com um determinado URI:
+
 ```php
 php artisan route:list --path=api
 ```
+
 Além disso, você pode instruir o Laravel a ocultar quaisquer rotas definidas por pacotes de terceiros fornecendo a opção --except-vendor ao executar o comando route:list:
+
 ```php
 php artisan route:list --except-vendor
 ```
+
 Da mesma forma, você também pode instruir o Laravel a mostrar apenas as rotas definidas por pacotes de terceiros fornecendo a opção --only-vendor ao executar o comando route:list:
+
 ```php
 php artisan route:list --only-vendor
 ```
+
 ## # **Parâmetros de Rota**
+
 ### # **Parâmetros obrigatórios**
+
 Às vezes, você precisará capturar segmentos do URI em sua rota. Por exemplo, pode ser necessário capturar o ID de um usuário do URL. Você pode fazer isso definindo parâmetros de rota:
+
 ```php
 Route::get('/user/{id}', function ($id) {
     return 'User '.$id;
 });
 ```
+
 Você pode definir quantos parâmetros de rota forem necessários para sua rota:
+
 ```php
 Route::get('/posts/{post}/comments/{comment}', function ($postId, $commentId) {
     //
 });
 ```
+
 Os parâmetros de rota são sempre colocados entre chaves {} e devem consistir em caracteres alfabéticos. Os sublinhados (_) também são aceitáveis em nomes de parâmetros de rota. Os parâmetros de rota são injetados em retornos de chamada/controladores de rota com base em sua ordem - os nomes dos argumentos de retorno de chamada/controlador de rota não importam.
+
 #### # **Parâmetros e injeção de dependência**
 Se sua rota tiver dependências que você gostaria que o contêiner de serviço Laravel injetasse automaticamente no retorno de chamada da sua rota, você deve listar seus parâmetros de rota após suas dependências:
+
 ```php
 use Illuminate\Http\Request;
  
@@ -128,7 +165,9 @@ Route::get('/user/{id}', function (Request $request, $id) {
 });
 ```
 ### # **Parâmetros opcionais**
+
 Ocasionalmente, pode ser necessário especificar um parâmetro de rota que nem sempre está presente no URI. Você pode fazer isso colocando um `?` marque após o nome do parâmetro. Certifique-se de dar um valor padrão à variável correspondente da rota:
+
 ```php
 Route::get('/user/{name?}', function ($name = null) {
     return $name;
@@ -139,7 +178,9 @@ Route::get('/user/{name?}', function ($name = 'John') {
 });
 ```
 ### # **Restrições de Expressão Regular**
+
 Você pode restringir o formato de seus parâmetros de rota usando o método `where` em uma instância de rota. O método `where` aceita o nome do parâmetro e uma expressão regular que define como o parâmetro deve ser restringido:
+
 ```php
 Route::get('/user/{name}', function ($name) {
     //
@@ -153,7 +194,9 @@ Route::get('/user/{id}/{name}', function ($id, $name) {
     //
 })->where(['id' => '[0-9]+', 'name' => '[a-z]+']);
 ```
+
 Por conveniência, alguns padrões de expressão regular comumente usados têm métodos auxiliares que permitem adicionar rapidamente restrições de padrão às suas rotas:
+
 ```php
 Route::get('/user/{id}/{name}', function ($id, $name) {
     //
@@ -172,8 +215,11 @@ Route::get('/category/{category}', function ($category) {
 })->whereIn('category', ['movie', 'song', 'painting']);
 ```
 Se a solicitação recebida não corresponder às restrições do padrão de rota, uma resposta HTTP 404 será retornada.
+
 #### # **Restrições Globais**
+
 Se você quiser que um parâmetro de rota seja sempre restringido por uma determinada expressão regular, você pode usar o método `pattern`. Você deve definir esses padrões no método de `inicialização` de sua classe `App\Providers\RouteServiceProvider`:
+
 ```php
 /**
  * Define your route model bindings, pattern filters, etc.
@@ -185,37 +231,50 @@ public function boot()
     Route::pattern('id', '[0-9]+');
 }
 ```
+
 Uma vez definido o padrão, ele é aplicado automaticamente a todas as rotas usando esse nome de parâmetro:
+
 ```php
 Route::get('/user/{id}', function ($id) {
     // Only executed if {id} is numeric...
 });
 ```
 #### # **Barras codificadas**
+
 O componente de roteamento do Laravel permite que todos os caracteres, exceto /, estejam presentes nos valores dos parâmetros de rota. Você deve permitir explicitamente que / seja parte de seu espaço reservado usando uma expressão regular de condição `where`:
+
 ```php
 Route::get('/search/{search}', function ($search) {
     return $search;
 })->where('search', '.*');
 ```
-As barras codificadas são suportadas apenas no último segmento de rota.
+
+> As barras codificadas são suportadas apenas no último segmento de rota.
+
 ## # **Rotas nomeadas**
+
 As rotas nomeadas permitem a geração conveniente de URLs ou redirecionamentos para rotas específicas. Você pode especificar um nome para uma rota encadeando o método name na definição da rota:
+
 ```php
 Route::get('/user/profile', function () {
     //
 })->name('profile');
 ```
+
 Você também pode especificar nomes de rotas para ações do controlador:
+
 ```php
-Route::get(
-    '/user/profile',
+Route::get('/user/profile',
     [UserProfileController::class, 'show']
 )->name('profile');
 ```
-Os nomes de rota devem sempre ser exclusivos.
+
+> Os nomes de rota devem sempre ser exclusivos.
+
 #### # **Gerando URLs para Rotas Nomeadas**
+
 Depois de atribuir um nome a uma determinada rota, você pode usar o nome da rota ao gerar URLs ou `redirecionamentos` via `rota` do Laravel e funções auxiliares de redirecionamento:
+
 ```php
 // Generating URLs...
 $url = route('profile');
@@ -225,7 +284,9 @@ return redirect()->route('profile');
  
 return to_route('profile');
 ```
+
 Se a rota nomeada define parâmetros, você pode passar os parâmetros como segundo argumento para a função de rota. Os parâmetros fornecidos serão inseridos automaticamente na URL gerada em suas posições corretas:
+
 ```php
 Route::get('/user/{id}/profile', function ($id) {
     //
@@ -233,7 +294,9 @@ Route::get('/user/{id}/profile', function ($id) {
  
 $url = route('profile', ['id' => 1]);
 ```
+
 Se você passar parâmetros adicionais no array, esses pares chave/valor serão automaticamente adicionados à string de consulta da URL gerada:
+
 ```php
 Route::get('/user/{id}/profile', function ($id) {
     //
@@ -243,8 +306,11 @@ $url = route('profile', ['id' => 1, 'photos' => 'yes']);
  
 // /user/1/profile?photos=yes
 ```
-Às vezes, você pode querer especificar valores padrão em toda a solicitação para parâmetros de URL, como a localidade atual. Para fazer isso, você pode usar o `método URL::defaults`.
+
+> Às vezes, você deseja especificar valores padrão em toda a solicitação para parâmetros de URL, como a localidade atual. Para fazer isso, você pode usar o `método URL::defaults`.
+
 #### # **Inspecionando a rota atual**
+
 Se você deseja determinar se a solicitação atual foi roteada para uma determinada rota nomeada, você pode usar o método `nomeado` em uma instância de Rota. Por exemplo, você pode verificar o nome da rota atual de um middleware de rota:
 ```php
 /**
@@ -264,10 +330,14 @@ public function handle($request, Closure $next)
 }
 ```
 ## # **Grupos de rotas**
+
 Os grupos de rotas permitem que você compartilhe atributos de rota, como middleware, em um grande número de rotas sem precisar definir esses atributos em cada rota individual.
 Grupos aninhados tentam "mesclar" atributos de forma inteligente com seu grupo pai. Middleware e `where` as condições são mescladas enquanto os nomes e prefixos são anexados. Delimitadores de namespace e barras em prefixos de URI são adicionados automaticamente quando apropriado.
+
 ### # **Middleware**
+
 Para atribuir `middleware` a todas as rotas dentro de um grupo, você pode usar o método `middleware` antes de definir o grupo. Middleware são executados na ordem em que estão listados no array:
+
 ```php
 Route::middleware(['first', 'second'])->group(function () {
     Route::get('/', function () {
