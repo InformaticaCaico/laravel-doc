@@ -1,4 +1,4 @@
-Validação
+# # Validação
 
     Introdução
     Primeiros passos na validação
@@ -37,27 +37,35 @@ Validação
         Regras implícitas
         
         
-        Introdução
+## # Introdução
+
 O Laravel fornece diversas abordagens diferentes para validar os dados de entrada de seu aplicativo. É o mais comum usar método de validação disponível em todas as solicitações HTTP recebidas. No entanto, falaremos também de outras abordagens para realizar a validação
 O Laravel inclui uma ampla variedade de regras de validação convenientes que você pode aplicar aos dados, até mesmo fornecendo a capacidade de validar se os valores são exclusivos em uma determinada tabela de banco de dados. Cobriremos cada uma dessas regras de validação em detalhes para que você esteja familiarizado com todos os recursos de validação do Laravel.
 
 
-        Início rápido de validação
+## # Início rápido de validação
+
 Para aprender sobre os poderosos recursos de validação do Laravel, vejamos um exemplo completo de validação de um formulário e exibição das mensagens de erro de volta para o usuário. Ao ler esta visão geral de alto nível, você poderá obter uma boa compreensão geral de como validar dados de solicitações recebidas usando o Laravel:
 
 
-    Definindo as Rotas
+### # Definindo as Rotas
+
 Primeiro, vamos supor que temos as seguintes rotas definidas em nosso arquivo routes/web.php:
 
+```php
 use App\Http\Controllers\PostController;
  
 Route::get('/post/create', [PostController::class, 'create']);
 Route::post('/post', [PostController::class, 'store']);
+```
 
 A rota GET exibirá um formulário para o usuário criar uma nova postagem no blog, enquanto a rota POST armazenará a nova postagem no banco de dados.
 
-    Criando o controlador
+### # Criando o controlador
+
 Em seguida, vamos dar uma olhada em um controlador simples que lida com solicitações de entrada para essas rotas. Vamos deixar o método store vazio por enquanto:
+
+```php
 <?php
  
 namespace App\Http\Controllers;
@@ -88,13 +96,17 @@ class PostController extends Controller
         // Validate and store the blog post...
     }
 }
+```
 
-    Escrevendo a lógica de validação    
+### # Escrevendo a lógica de validação    
+
 Agora estamos prontos para preencher nosso método store com a lógica para validar a nova postagem do blog. Para isso, usaremos o método validate fornecido pelo objeto Illuminate\Http\Request. Se as regras de validação forem aprovadas, seu código continuará executando normalmente; no entanto, se a validação falhar, uma exceção Illuminate\Validation\ValidationException será lançada e a resposta de erro apropriada será automaticamente enviada de volta ao usuário.
 
 Se a validação falhar durante uma solicitação HTTP tradicional, uma resposta de redirecionamento para a URL anterior será gerada. Se a solicitação recebida for uma solicitação XHR, uma resposta JSON contendo as mensagens de erro de validação será retornada.
 
 Para entender melhor o método validate, vamos voltar para o método store:pty por enquanto:
+
+```php
 /**
  * Armazene uma nova postagem no blog.
  *
@@ -110,57 +122,71 @@ public function store (Request $request)
  
     // A postagem do blog é válida...
 }
+```
 
 Como você pode ver, as regras de validação são passadas para o método validate. Não se preocupe - todas as regras de validação disponíveis estão documentadas. Novamente, se a validação falhar, a resposta adequada será gerada automaticamente. Se a validação for aprovada, nosso controlador continuará executando normalmente.
 
 Alternativamente, as regras de validação podem ser especificadas como matrizes de regras em vez de um único | cadeia delimitada:
 
+```php
 $validatedData = $request->validate([
     'title' => ['required', 'unique:posts', 'max:255'],
     'body' => ['required'],
 ]);
+```
 
 Além disso, você pode usar o método validateWithBag para validar uma solicitação e armazenar todas as mensagens de erro em um pacote de erro nomeado:
 
+```php
 $validatedData = $request->validateWithBag('post', [
     'title' => ['required', 'unique:posts', 'max:255'],
     'body' => ['required'],
 ]);
+```
 
-    Parando na primeira falha de validação
+#### # Parando na primeira falha de validação
+
 Às vezes, você pode querer parar de executar as regras de validação em um atributo após a primeira falha de validação. Para isso, atribua a regra de fiança ao atributo:
 
+```php
 $request->validate([
     'title' => 'fiança|obrigatório|único:postas|max:255',
     'body' => 'required',
 ]);
+```
 
 Neste exemplo, se a regra exclusiva no atributo title falhar, a regra max não será verificada. As regras serão validadas na ordem em que forem atribuídas.
 
-Uma nota sobre atributos aninhados
+#### # Uma nota sobre atributos aninhados
 
 Se a solicitação HTTP recebida contiver dados de campo "aninhados", você poderá especificar esses campos em suas regras de validação usando a sintaxe "ponto":
 
+```php
 $request->validate([
     'title' => 'required|unique:posts|max:255',
     'author.name' => 'required',
     'author.description' => 'required',
 ]);
+```
 
 Por outro lado, se o nome do seu campo contiver um ponto literal, você pode impedir explicitamente que isso seja interpretado como sintaxe de "ponto" escapando o ponto com uma barra invertida:
 
+```php
 $request->validate([
     'title' => 'required|unique:posts|max:255',
     'v1\.0' => 'required',
 ]);
+```
 
-    Exibindo os erros de validação
+### # Exibindo os erros de validação
+
 Então, e se os campos de solicitação de entrada não passarem pelas regras de validação fornecidas? Como mencionado anteriormente, o Laravel redirecionará automaticamente o usuário de volta para sua localização anterior. Além disso, todos os erros de validação e entrada de solicitação serão automaticamente exibidos na sessão.
 
 Uma variável $errors é compartilhada com todas as visualizações do seu aplicativo pelo middleware Illuminate\View\Middleware\ShareErrorsFromSession, que é fornecido pelo grupo de middleware da web. Quando esse middleware é aplicado, uma variável $errors sempre estará disponível em suas visualizações, permitindo que você assuma convenientemente que a variável $errors está sempre definida e pode ser usada com segurança. A variável $errors será uma instância de Illuminate\Support\MessageBag. Para obter mais informações sobre como trabalhar com este objeto, confira sua documentação.
 
 Assim, em nosso exemplo, o usuário será redirecionado para o método create do nosso controller quando a validação falhar, permitindo-nos exibir as mensagens de erro na view:
 
+```php
 <!-- /resources/views/post/create.blade.php -->
  
 <h1>Create Post</h1>
@@ -174,20 +200,24 @@ Assim, em nosso exemplo, o usuário será redirecionado para o método create do
         </ul>
     </div>
 @fim se
- 
 <!-- Criar formulário de postagem -->
+```
 
-    Personalizando as mensagens de erro
+#### # Personalizando as mensagens de erro
+
 Cada uma das regras de validação integradas do Laravel tem uma mensagem de erro localizada no arquivo lang/en/validation.php da sua aplicação. Nesse arquivo, você encontrará uma entrada de tradução para cada regra de validação. Você é livre para alterar ou modificar essas mensagens com base nas necessidades do seu aplicativo.
 
 Além disso, você pode copiar este arquivo para outro diretório de idioma de tradução para traduzir as mensagens para o idioma do seu aplicativo. Para saber mais sobre a localização do Laravel, confira a documentação completa de localização.
 
-    Solicitações e validação de XHR
+#### # Solicitações e validação de XHR
+
 Neste exemplo, usamos um formulário tradicional para enviar dados para o aplicativo. No entanto, muitos aplicativos recebem solicitações XHR de um front-end com JavaScript. Ao usar o método de validação durante uma solicitação XHR, o Laravel não gerará uma resposta de redirecionamento. Em vez disso, o Laravel gera uma resposta JSON contendo todos os erros de validação. Essa resposta JSON será enviada com um código de status HTTP 422.
 
-A diretiva @error
+#### # A diretiva @error
+
 Você pode usar a diretiva @error Blade para determinar rapidamente se existem mensagens de erro de validação para um determinado atributo. Dentro de uma diretiva @error, você pode ecoar a variável $message para exibir a mensagem de erro:
 
+```php
 <!-- /resources/views/post/create.blade.php -->
  
 <label for="title">Título do Post</label>
@@ -200,39 +230,51 @@ Você pode usar a diretiva @error Blade para determinar rapidamente se existem m
 @error('title')
     <div class="alert alert-danger">{{ $message }}</div>
 @enderror
+```
 
 Se você estiver usando sacos de erro nomeados, você pode passar o nome do saco de erro como o segundo argumento para a diretiva @error:
 
+```php
 <input ... class="@error('title', 'post') é inválido @enderror">
+```
 
-    Repopulação de formulários
+### # Repopulação de formulários
+
 Quando o Laravel gera uma resposta de redirecionamento devido a um erro de validação, o framework irá automaticamente fazer o flash de todas as entradas da requisição para a sessão. Isso é feito para que você possa acessar convenientemente a entrada durante a próxima solicitação e preencher novamente o formulário que o usuário tentou enviar.
 
 Para recuperar a entrada atualizada da solicitação anterior, invoque o método antigo em uma instância de Illuminate\Http\Request. O método antigo puxará os dados de entrada anteriormente exibidos da sessão:
 
+```php
 $title = $request->old('title');
+```
 
 O Laravel também fornece um antigo ajudante global. Se você estiver exibindo uma entrada antiga em um modelo Blade, é mais conveniente usar o antigo auxiliar para preencher novamente o formulário. Se não existir nenhuma entrada antiga para o campo fornecido, será retornado null:
 
+```php
 <input type="text" name="title" value="{{ old('title') }}">
+```
 
-    Uma Nota Sobre Campos Opcionais
+### # Uma Nota Sobre Campos Opcionais
 
 Por padrão, o Laravel inclui o middleware TrimStrings e ConvertEmptyStringsToNull na pilha de middleware global do seu aplicativo. Esses middlewares são listados na pilha pela classe App\Http\Kernel. Por isso, muitas vezes você precisará marcar seus campos de solicitação "opcionais" como anuláveis ​​se não quiser que o validador considere valores nulos como inválidos. Por exemplo:
 
+```php
 $request->validate([
     'title' => 'required|unique:posts|max:255',
     'body' => 'required',
     'publish_at' => 'nullable|date',
 ]);
+```
 
 Neste exemplo, estamos especificando que o campo publish_at pode ser nulo ou uma representação de data válida. Se o modificador anulável não for adicionado à definição da regra, o validador considerará nula uma data inválida.
 
-    Formato de resposta de erro de validação
+### # Formato de resposta de erro de validação
+
 Quando seu aplicativo lança uma exceção Illuminate\Validation\ValidationException e a solicitação HTTP recebida está esperando uma resposta JSON, o Laravel formata automaticamente as mensagens de erro para você e retorna uma resposta HTTP 422 Unprocessable Entity.
 
 Abaixo, você pode revisar um exemplo do formato de resposta JSON para erros de validação. Observe que as chaves de erro aninhadas são achatadas no formato de notação "ponto":
 
+```php
 {
     "message": "O nome da equipe deve ser uma string. (e mais 4 erros)",
     "erros": {
@@ -251,17 +293,23 @@ Abaixo, você pode revisar um exemplo do formato de resposta JSON para erros de 
         ]
     }
 }
+```
 
-        Validação de solicitação de formulário
-    Criando solicitações de formulário
+## # Validação de solicitação de formulário
+
+### # Criando solicitações de formulário
+
 Para cenários de validação mais complexos, você pode criar uma "solicitação de formulário". Solicitações de formulário são classes de solicitação personalizadas que encapsulam sua própria lógica de validação e autorização. Para criar uma classe de solicitação de formulário, você pode usar o comando make:request Artisan CLI:
 
+```php
 php artesão make:request StorePostRequest
+```
 
 A classe de solicitação de formulário gerada será colocada no diretório app/Http/Requests. Se este diretório não existir, ele será criado quando você executar o comando make:request. Cada solicitação de formulário gerada pelo Laravel possui dois métodos: autorizar e regras.
 
 Como você deve ter adivinhado, o método authorize é responsável por determinar se o usuário atualmente autenticado pode realizar a ação representada pela solicitação, enquanto o método rules retorna as regras de validação que devem ser aplicadas aos dados da solicitação:
 
+```php
 /**
  * Obtenha as regras de validação que se aplicam à solicitação.
  *
@@ -274,9 +322,11 @@ public function rules()
         'body' => 'required',
     ];
 }
+```
 
 Então, como as regras de validação são avaliadas? Tudo o que você precisa fazer é digitar a solicitação no método do controlador. A solicitação de formulário recebida é validada antes que o método do controlador seja chamado, o que significa que você não precisa sobrecarregar seu controlador com nenhuma lógica de validação:
 
+```php
 /**
  * Armazene uma nova postagem no blog.
  *
@@ -294,13 +344,16 @@ public function store (StorePostRequest $request)
     $validated = $request->safe()->only(['name', 'email']);
     $validated = $request->safe()->except(['name', 'email']);
 }
+```
 
 Se a validação falhar, uma resposta de redirecionamento será gerada para enviar o usuário de volta ao local anterior. Os erros também serão exibidos na sessão para que fiquem disponíveis para exibição. Se a solicitação for uma solicitação XHR, uma resposta HTTP com um código de status 422 será retornada ao usuário, incluindo uma representação JSON dos erros de validação.
 
-Adicionando ganchos posteriores a solicitações de formulário
+
+#### # Adicionando ganchos posteriores a solicitações de formulário
 
 Se você quiser adicionar um gancho de validação "depois" a uma solicitação de formulário, você pode usar o método withValidator. Este método recebe o validador totalmente construído, permitindo que você chame qualquer um de seus métodos antes que as regras de validação sejam realmente avaliadas:
 
+```php
 /**
  * Configure a instância do validador.
  *
@@ -315,39 +368,50 @@ public function withValidator($validator)
         }
     });
 }
+```
 
-    Parando no primeiro atributo de falha de validação
+#### # Parando no primeiro atributo de falha de validação
+
 Ao adicionar uma propriedade stopOnFirstFailure à sua classe de solicitação, você pode informar ao validador que ele deve parar de validar todos os atributos assim que ocorrer uma única falha de validação:
 
+```php
 /**
  * Indica se o validador deve parar na primeira falha de regra.
  *
  * @var bool
  */
-protegido $stopOnFirstFailure = true;
+protected $stopOnFirstFailure = true;
+```
 
-    Personalizando o local de redirecionamento
+#### # Personalizando o local de redirecionamento
+
 Conforme discutido anteriormente, uma resposta de redirecionamento será gerada para enviar o usuário de volta ao local anterior quando a validação da solicitação de formulário falhar. No entanto, você pode personalizar esse comportamento. Para fazer isso, defina uma propriedade $redirect em sua solicitação de formulário:
 
+```php
 /**
  * O URI para o qual os usuários devem ser redirecionados se a validação falhar.
  *
  * @var string
  */
 protected $redirect = '/dashboard';
+```
 
 Ou, se quiser redirecionar os usuários para uma rota nomeada, você pode definir uma propriedade $redirectRoute:
 
+```php
 /**
  * A rota para a qual os usuários devem ser redirecionados se a validação falhar.
  *
  * @var string
  */
 protected $redirectRoute = 'dashboard';
+```
 
-    Autorização de solicitações de formulário
+### # Autorização de solicitações de formulário
+
 A classe de solicitação de formulário também contém um método de autorização. Nesse método, você pode determinar se o usuário autenticado realmente tem autoridade para atualizar um determinado recurso. Por exemplo, você pode determinar se um usuário realmente possui um comentário de blog que está tentando atualizar. Muito provavelmente, você interagirá com seus portões e políticas de autorização neste método:
 
+```php
 use App\Models\Comment;
  
 /**
@@ -361,19 +425,25 @@ function public autorizar()
  
     return $comment && $this->user()->can('update', $comment);
 }
+```
 
 Como todas as solicitações de formulário estendem a classe de solicitação básica do Laravel, podemos usar o método user para acessar o usuário atualmente autenticado. Além disso, observe a chamada para o método de rota no exemplo acima. Esse método concede acesso aos parâmetros de URI definidos na rota que está sendo chamada, como o parâmetro {comment} no exemplo abaixo:
 
+```php
 Rote::post('/comment/{comment}');
+```
 
 Portanto, se sua aplicação está aproveitando a vinculação do modelo de rota, seu código pode ficar ainda mais sucinto acessando o modelo resolvido como propriedade da requisição:
 
+```php
 return $this->user()->can('update', $this->comment);
+```
 
 Se o método authorize retornar false, uma resposta HTTP com um código de status 403 será retornada automaticamente e o método do controlador não será executado.
 
 Se você planeja manipular a lógica de autorização para a solicitação em outra parte do seu aplicativo, você pode simplesmente retornar true do método authorize:
 
+```php
 /**
  * Determine se o usuário está autorizado a fazer esta solicitação.
  *
@@ -383,10 +453,13 @@ function public authorize()
 {
     return true;
 }
+```
 
-    Personalizando as mensagens de erro
+### # Personalizando as mensagens de erro
+
 Você pode personalizar as mensagens de erro usadas pela solicitação de formulário substituindo o método messages. Este método deve retornar um array de pares atributo/regra e suas mensagens de erro correspondentes:
 
+```php
 /**
  * Obtenha as mensagens de erro para as regras de validação definidas.
  *
@@ -399,11 +472,13 @@ public function messages()
         'body.required' => 'Uma mensagem é obrigatória',
     ];
 }
+```
 
-Personalizando os atributos de validação
+#### # Personalizando os atributos de validação
 
 Muitas das mensagens de erro de regra de validação internas do Laravel contêm um espaço reservado :attribute. Se você quiser que o espaço reservado :attribute de sua mensagem de validação seja substituído por um nome de atributo personalizado, você pode especificar os nomes personalizados substituindo o método de atributos. Este método deve retornar um array de pares atributo/nome:
 
+```php
 /**
  * Obtenha atributos personalizados para erros do validador.
  *
@@ -415,10 +490,12 @@ public function attributes()
         'e-mail' => 'email address',
     ];
 }
+```
 
-    Preparando a entrada para validação
+### # Preparando a entrada para validação
 Se você precisar preparar ou higienizar quaisquer dados da solicitação antes de aplicar suas regras de validação, poderá usar o método prepareForValidation:
 
+```php
 use Illuminate\Support\Str;
  
 /**
@@ -432,11 +509,13 @@ protected function prepareForValidation()
         'slug' => Str::slug($this->slug),
     ]);
 }
+```
 
-Criando validadores manualmente
+## # Criando validadores manualmente
 
 Se você não quiser usar o método validate na solicitação, poderá criar uma instância do validador manualmente usando a fachada Validator. O método make na fachada gera uma nova instância do validador:
 
+```php
 <?php
  
 namespace App\Http\Controllers;
@@ -476,76 +555,104 @@ class PostController extends Controller
         // Armazenar a postagem do blog...
     }
 }
+```
+
 
 O primeiro argumento passado para o método make são os dados em validação. O segundo argumento é uma matriz das regras de validação que devem ser aplicadas aos dados.
 
 Depois de determinar se a validação da solicitação falhou, você pode usar o método withErrors para exibir as mensagens de erro na sessão. Ao usar esse método, a variável $errors será compartilhada automaticamente com suas visualizações após o redirecionamento, permitindo que você as exiba facilmente para o usuário. O método withErrors aceita um validador, um MessageBag ou um array PHP.
 
-    Parando na primeira falha de validação
+**Parando na primeira falha de validação**
+
 O método stopOnFirstFailure informará ao validador que ele deve parar de validar todos os atributos assim que ocorrer uma única falha de validação:
 
+```php
 if ($validador->stopOnFirstFailure()->fails()) {
     // ...
 }
+```
 
-    Redirecionamento automático
+### #Redirecionamento automático
+
 Se você deseja criar uma instância do validador manualmente, mas ainda aproveita o redirecionamento automático oferecido pelo método de validação da solicitação HTTP, pode chamar o método de validação em uma instância de validador existente. Se a validação falhar, o usuário será redirecionado automaticamente ou, no caso de uma solicitação XHR, uma resposta JSON será retornada:
 
+```php
 Validador::make($request->all(), [
     'title' => 'required|unique:posts|max:255',
     'body' => 'required',
 ])->validate();
+```
 
 Você pode usar o método validateWithBag para armazenar as mensagens de erro em uma bolsa de erro nomeada se a validação falhar:
 
+```php
 Validador::make($request->all(), [
     'title' => 'required|unique:posts|max:255',
     'body' => 'required',
 ])->validateWithBag('post');
+```
 
-    Sacos de erro nomeados
+### # Sacos de erro nomeados
+
 Se você tiver vários formulários em uma única página, poderá nomear o MessageBag que contém os erros de validação, permitindo que você recupere as mensagens de erro de um formulário específico. Para conseguir isso, passe um nome como segundo argumento para withErrors:
 
+```php
 return redirect('register')->withErrors($validator, 'login');
+```
 
 Você pode então acessar a instância MessageBag nomeada da variável $errors:
 
+```php
 {{ $errors->login->first('email') }}
+```
 
-    Personalizando as mensagens de erro
+### # Personalizando as mensagens de erro
+
 Se necessário, você pode fornecer mensagens de erro personalizadas que uma instância do validador deve usar em vez das mensagens de erro padrão fornecidas pelo Laravel. Existem várias maneiras de especificar mensagens personalizadas. Primeiro, você pode passar as mensagens personalizadas como o terceiro argumento para o método Validator::make:
 
+```php
 $validador = Validador::make($entrada, $regras, $mensagens = [
     'required' => 'O campo :attribute é obrigatório.',
 ]);
+```
 
 Neste exemplo, o espaço reservado :attribute será substituído pelo nome real do campo em validação. Você também pode utilizar outros marcadores de posição nas mensagens de validação. Por exemplo:
 
+```php
 $messages = [
     'same' => 'O :attribute e :other devem corresponder.',
     'size' => 'O :attribute deve ser exatamente :size.',
     'between' => 'O :attribute value :input não está entre :min - :max.',
     'in' => 'O :attribute deve ser um dos seguintes tipos: :values',
 ];
+```
 
+### # Especificando uma mensagem personalizada para um determinado atributo
 
-    Especificando uma mensagem personalizada para um determinado atributo
 Às vezes, você pode querer especificar uma mensagem de erro personalizada apenas para um atributo específico. Você pode fazer isso usando a notação "ponto". Especifique primeiro o nome do atributo, seguido pela regra:
 
+```php
 $messages = [
     'email.required' => 'Precisamos saber seu endereço de e-mail!',
 ];
+```
 
-    Especificando valores de atributos personalizados
+### # Especificando valores de atributos personalizados
+
 Muitas das mensagens de erro internas do Laravel incluem um espaço reservado :attribute que é substituído pelo nome do campo ou atributo em validação. Para personalizar os valores usados ​​para substituir esses espaços reservados para campos específicos, você pode passar uma matriz de atributos personalizados como o quarto argumento para o método Validator::make:
 
+```php
 $validador = Validador::make($input, $rules, $messages, [
     'email' => 'endereço de e-mail',
 ]);
+```
 
-    Após Gancho de Validação
+
+### #  Após Gancho de Validação
+
 Você também pode anexar retornos de chamada para serem executados após a conclusão da validação. Isso permite realizar validações adicionais com facilidade e até mesmo adicionar mais mensagens de erro à coleção de mensagens. Para começar, chame o método after em uma instância do validador:
 
+```php
 $Validator = Validator::make(/* ... */);
  
 $validator->after(function ($validator) {
@@ -555,28 +662,35 @@ $validator->after(function ($validator) {
         );
     }
 });
- 
+
 if ($validator->fails()) {
     //
 }
+```
 
-    Trabalhando com entrada validada
+### # Trabalhando com entrada validada
+
 Depois de validar os dados da solicitação de entrada usando uma solicitação de formulário ou uma instância do validador criada manualmente, talvez você queira recuperar os dados da solicitação de entrada que realmente foram validados. Isso pode ser feito de várias maneiras. Primeiro, você pode chamar o método validado em uma solicitação de formulário ou instância do validador. Este método retorna uma matriz dos dados que foram validados:
 
+```php
 $validated = $request->validated();
  
 $validated = $validator->validated();
+```
 
 Como alternativa, você pode chamar o método seguro em uma solicitação de formulário ou instância do validador. Este método retorna uma instância de Illuminate\Support\ValidatedInput. Este objeto expõe apenas, exceto, e todos os métodos para recuperar um subconjunto dos dados validados ou toda a matriz de dados validados:
 
+```php
 $validated = $request->safe()->only(['name', 'email']);
  
 $validated = $request->safe()->except(['name', 'email']);
  
 $validated = $request->safe()->all();
+```
 
 Além disso, a instância Illuminate\Support\ValidatedInput pode ser iterada e acessada como uma matriz:
 
+```php
 // Os dados validados podem ser iterados...
 foreach ($request->safe() as $key => $value) {
     //
@@ -586,94 +700,127 @@ foreach ($request->safe() as $key => $value) {
 $validated = $request->safe();
  
 $email = $validated['email'];
+```
 
 Se você quiser adicionar campos adicionais aos dados validados, você pode chamar o método de mesclagem:
 
+```php
 $validated = $request->safe()->merge(['name' => 'Taylor Otwell']);
+```
 
 Se você deseja recuperar os dados validados como uma instância de coleta, pode chamar o método collect:
 
+```php
 $collection = $request->safe()->collect();
+```
 
-    Trabalhando com mensagens de erro
+### # Trabalhando com mensagens de erro
+
 Após chamar o método errors em uma instância do Validator, você receberá uma instância Illuminate\Support\MessageBag, que possui vários métodos convenientes para trabalhar com mensagens de erro. A variável $errors que é disponibilizada automaticamente para todas as exibições também é uma instância da classe MessageBag.
 
-Recuperando a primeira mensagem de erro para um campo
+
+### # Recuperando a primeira mensagem de erro para um campo
 
 Para recuperar a primeira mensagem de erro de um determinado campo, use o primeiro método:
 
+```php
 $errors = $validated->errors();
  
-    echo $errors->first('email');
+echo $errors->first('email');
+```
     
-    Recuperando todas as mensagens de erro para um campo
+### # Recuperando todas as mensagens de erro para um campo
+
 Se você precisar recuperar uma matriz de todas as mensagens de um determinado campo, use o método get:
 
+```php
 foreach ($errors->get('email') as $message) {
     //
 }
+```
 
 Se você estiver validando um campo de formulário de matriz, poderá recuperar todas as mensagens para cada um dos elementos da matriz usando o caractere *:
 
+```php
 foreach ($errors->get('attachments.*') as $message) {
     //
 }
+```
 
-    Recuperando todas as mensagens de erro para todos os campos
+#### # Recuperando todas as mensagens de erro para todos os campos
+
 Para recuperar uma matriz de todas as mensagens de todos os campos, use o método all:
 
+```php
 foreach ($errors->all() as $message) {
     //
 }
+```
 
-    Determinando se existem mensagens para um campo
+#### # Determinando se existem mensagens para um campo
+
 O método has pode ser usado para determinar se existem mensagens de erro para um determinado campo:
 
+```php
 if ($errors->has('email')) {
     //
 }
+```
 
-    Especificando mensagens personalizadas em arquivos de idioma
+### # Especificando mensagens personalizadas em arquivos de idioma
+
 Cada uma das regras de validação integradas do Laravel tem uma mensagem de erro localizada no arquivo lang/en/validation.php da sua aplicação. Nesse arquivo, você encontrará uma entrada de tradução para cada regra de validação. Você é livre para alterar ou modificar essas mensagens com base nas necessidades do seu aplicativo.
 
 Além disso, você pode copiar este arquivo para outro diretório de idioma de tradução para traduzir as mensagens para o idioma do seu aplicativo. Para saber mais sobre a localização do Laravel, confira a documentação completa de localização.
 
-    Mensagens personalizadas para atributos específicos
+#### # Mensagens personalizadas para atributos específicos
+
 Você pode personalizar as mensagens de erro usadas para as combinações de atributos e regras especificadas nos arquivos de linguagem de validação de seu aplicativo. Para fazer isso, adicione suas personalizações de mensagem à matriz personalizada do arquivo de idioma lang/xx/validation.php do seu aplicativo:
 
+```php
 'custom' => [
     'e-mail' => [
         'required' => 'Precisamos saber seu endereço de e-mail!',
         'max' => 'Seu endereço de e-mail é muito longo!'
     ],
 ],
+```
 
-Especificando atributos em arquivos de idioma
+### # Especificando atributos em arquivos de idioma
 
 Muitas das mensagens de erro internas do Laravel incluem um espaço reservado :attribute que é substituído pelo nome do campo ou atributo em validação. Se você quiser que a parte :attribute de sua mensagem de validação seja substituída por um valor personalizado, você pode especificar o nome do atributo personalizado na matriz de atributos do seu arquivo de idioma lang/xx/validation.php:
 
+```php
 'atributos' => [
     'email' => 'endereço de e-mail',
 ],
+```
 
-    Especificando valores em arquivos de idioma
+### # Especificando valores em arquivos de idioma
+
 Algumas das mensagens de erro de regra de validação internas do Laravel contêm um espaço reservado :value que é substituído pelo valor atual do atributo request. No entanto, você pode ocasionalmente precisar que a parte :value de sua mensagem de validação seja substituída por uma representação personalizada do valor. Por exemplo, considere a seguinte regra que especifica que um número de cartão de crédito é obrigatório se o payment_type tiver um valor de cc:
 
+```php
 Validator::make($request->all(), [
     'credit_card_number' => 'required_if:payment_type,cc'
 ]);
+```
 
 Se essa regra de validação falhar, ela produzirá a seguinte mensagem de erro:
 
+```
 O campo do número do cartão de crédito é obrigatório quando o tipo de pagamento é cc.
+```
 
 Em vez de exibir cc como o valor do tipo de pagamento, você pode especificar uma representação de valor mais amigável em seu arquivo de idioma lang/xx/validation.php definindo uma matriz de valores:
 
+```php
 'values' => [
     'payment_type' => [
         'cc' => 'cartão de crédito'
     ],
 ],
+```
 
 Após definir esse valor, a regra de validação produzirá a seguinte mensagem de erro:
 O campo número do cartão de crédito é obrigatório quando o tipo de pagamento é cartão de crédito.
