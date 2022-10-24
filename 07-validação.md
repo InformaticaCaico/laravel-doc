@@ -808,9 +808,9 @@ Validator::make($request->all(), [
 
 Se essa regra de validação falhar, ela produzirá a seguinte mensagem de erro:
 
-```
-O campo do número do cartão de crédito é obrigatório quando o tipo de pagamento é cc.
-```
+
+> O campo do número do cartão de crédito é obrigatório quando o tipo de pagamento é cc.
+
 
 Em vez de exibir cc como o valor do tipo de pagamento, você pode especificar uma representação de valor mais amigável em seu arquivo de idioma lang/xx/validation.php definindo uma matriz de valores:
 
@@ -823,117 +823,114 @@ Em vez de exibir cc como o valor do tipo de pagamento, você pode especificar um
 ```
 
 Após definir esse valor, a regra de validação produzirá a seguinte mensagem de erro:
-O campo número do cartão de crédito é obrigatório quando o tipo de pagamento é cartão de crédito.
+
+> O campo número do cartão de crédito é obrigatório quando o tipo de pagamento é cartão de crédito.
+
+## # Regras de Validação Disponíveis
 
 Abaixo está uma lista de todas as regras de validação disponíveis e suas funções:
-Aceito
-Aceito Se
-URL Ativo
-Após (Data)
-Após ou Igual (Data)
-Alfa
-Alfa Traço
-Alfanumérico
-Matriz
-Bail
-Antes (Data)
-Antes ou Igual (Data)
-Entre
-Booleano Senha Atual
-Confirmada Data Data Igual a Data Formato Recusado Recusado Se Diferentes Dígitos Dígitos Entre Dimensões (Arquivos de imagem) Distinto não começa com não termina com e- mail termina com enum Excluir excluir se excluir a menos
 
+[Accepted](#accepted)
 
+[Accepted If](#acceptedif)
 
+[Active URL](#activeurl)
 
+[After (Date)](#afterdate)
 
+[After Or Equal(Date)](#afterequal)
 
+[Alpha](#alpha)
 
+[Alpha Dash](#alpha_dash)
 
+[Alpha Numeric](#alpha_num)
 
+[Array](#array)
 
+[Bail](#bail)
 
+[Before (Dates)](#before)
 
+[Before Or Equal](#beforeequal)
 
+[Between](#between)
 
+[Boolean](#boolean)
 
+[Confirmed](#confirmed)
 
+[Current Password](#current_password)
 
+[Date](#date)
 
+[Date Equals](#dataequals)
 
-Excluir Com
-Excluir Sem
-Existe (Banco de Dados)
-Arquivo
-Preenchido
-Maior que
-Maior ou Igual
-Imagem (Arquivo)
-In
-In Array
-Inteiro
-Endereço IP
-JSON
-Menor que
-Menor ou Igual
-Endereço MAC
-Máx . Máx.
-Máx. Dígitos
-Tipos
-MIME Tipo MIME Por Extensão do Arquivo
-Min
-Mín. Dígitos
-Múltiplo de
-Not in
-Not Regex
-Nullable
-Numeric
-Password
-Present
-Proibido
-Proibido Se
-Proibido A menos
-que Proíba
-Expressão Regular
-Necessária
-Obrigatório Se
-necessário A menos
-que necessário Com
-obrigatório Com todos
-obrigatórios Sem
-obrigatório Sem todas as
-chaves de matriz obrigatórias
-Mesmo
-tamanho
-Às vezes
-começa com
-String
-Fuso horário URL UUID
-exclusivo (banco de dados)
+[Date Format](#date_format)
 
+[Declined](#declined)
 
-# aceito
-O campo em validação deve ser “sim”, “ligado”, 1 ou verdadeiro. Isso é útil para validar a aceitação de “Termos de Serviço” ou campos semelhantes.
-# accept_if:anotherfield,value,… 
-O campo em validação deve ser “yes”, “on”, 1, ou true se outro campo em validação for igual a um valor especificado. Isso é útil para validar a aceitação de “Termos de Serviço” ou campos semelhantes.
-# active_url
-O campo em validação deve ter um registro A ou AAAA válido de acordo com a função PHP dns_get_record. O nome do host da URL fornecida é extraído usando a função PHP parse_url antes de ser passado para dns_get_record.
-# after:date
-O campo em validação deve ser um valor após uma determinada data. As datas serão passadas para a função PHP strtotime para serem convertidas em uma instância DateTime válida:
+[Declined If](#declined_if)
+
+[Diffent](#different)
+
+[Digits](#digits)
+
+[Digits Between](#digits_between)
+
+[Dimensions (Image Files)](#dimensions)
+
+[Distinct](#distinct)
+
+#### # accepted<a id="accepted"></a> 
+
+O campo em validação deve ser `yes`, `on`, `1` ou `true`. Isso é útil para validar a aceitação de “Termos de Serviço” ou campos semelhantes.
+
+#### # accept_if:anotherfield,value,…<a id="acceptedif"></a> 
+
+O campo em validação deve ser `yes`, `on`, `1` ou `true` se outro campo em validação for igual a um valor especificado. Isso é útil para validar a aceitação de “Termos de Serviço” ou campos semelhantes.
+
+#### # active_url<a id="activeurl"></a>
+
+O campo em validação deve ter um registro A ou AAAA válido de acordo com a função PHP `dns_get_record`. O nome do host da URL fornecida é extraído usando a função PHP `parse_url` antes de ser passado para `dns_get_record`.
+
+#### # after:date <a id="#afterdate"></a>
+
+O campo em validação deve ser um valor após uma determinada data. As datas serão passadas para a função PHP `strtotime` para serem convertidas em uma instância `DateTime` válida:
+
+```php
 'data_inicial' => 'obrigatório|data|após:amanhã'
-Em vez de passar uma string de data para ser avaliada por strtotime, você pode especificar outro campo para comparar com a data:
-'finish_date' => 'required|date|after:start_date'
-after_or_equal:date
-O campo em validação deve ser um valor posterior ou igual à data informada. Para obter mais informações, consulte a regra depois.
-# alpha
-O campo em validação deve ser inteiramente de caracteres alfabéticos.
-# alpha_dash
-O campo em validação pode conter caracteres alfanuméricos, bem como travessões e sublinhados.
-# alpha_num
-O campo sob validação deve ser inteiramente de caracteres alfanuméricos.
-# array
-O campo sob validação deve ser um array PHP.
-Quando valores adicionais são fornecidos à regra de matriz, cada chave na matriz de entrada deve estar presente na lista de valores fornecida à regra. No exemplo a seguir, a chave admin na matriz de entrada é inválida, pois não está contida na lista de valores fornecida à regra de matriz:
+```
 
+Em vez de passar uma string de data para ser avaliada por `strtotime`, você pode especificar outro campo para comparar com a data:
+
+```php
+'finish_date' => 'required|date|after:start_date'
+```
+
+#### # after_or_equal:date <a id="#afterequal"></a>
+
+O campo em validação deve ser um valor posterior ou igual à data informada. Para obter mais informações, veja a regra [`after`](#afterdate).
+
+#### # alpha<a id="#alpha"></a>
+
+O campo em validação deve ser inteiramente de caracteres alfabéticos.
+
+#### # alpha_dash<a id="#alpha_dash"></a>
+
+O campo em validação pode conter caracteres alfanuméricos, bem como travessões e sublinhados.
+
+#### # alpha_num<a id="#alpha_num"></a>
+
+O campo sob validação deve ser inteiramente de caracteres alfanuméricos.
+
+#### # array<a id="#array"></a>
+
+O campo sob validação deve ser um `array` PHP.
+
+Quando valores adicionais são fornecidos à regra `array`, cada chave na matriz de entrada deve estar presente na lista de valores fornecida à regra. No exemplo a seguir, a chave `admin` na matriz de entrada é inválida, pois não está contida na lista de valores fornecida à regra `array`:
+
+```php
 use Illuminate\Support\Facades\Validator;
  $input = [
     'user' => [
@@ -946,74 +943,144 @@ use Illuminate\Support\Facades\Validator;
 Validator::make($input, [
     'user' => 'array:name,username',
 ]);
+```
 
+Em geral, você deve sempre especificar as chaves do array que devem estar presentes no seu array.
 
-Em geral, você deve sempre especificar as chaves de matriz que podem estar presentes em sua matriz.
-# bail
+#### # bail <a id="bail"></a>
+
 Pare de executar regras de validação para o campo após a primeira falha de validação.
-Embora a regra de bail só pare de validar um campo específico quando encontrar uma falha de validação, o método stopOnFirstFailure informará ao validador que ele deve parar de validar todos os atributos assim que ocorrer uma única falha de validação:
 
+Embora a regra de `bail` só pare de validar um campo específico quando encontrar uma falha de validação, o método `stopOnFirstFailure` informará ao validador que ele deve parar de validar todos os atributos assim que ocorrer uma única falha de validação:
+
+```php 
 if ($validator->stopOnFirstFailure()->fails()) {
     // ...
 }
+```
 
-# before:date
-O campo em validação deve ser um valor anterior à data informada. As datas serão passadas para a função PHP strtotime para serem convertidas em uma instância válida de DateTime. Além disso, como a regra depois, o nome de outro campo em validação pode ser fornecido como o valor de data.
-# before_or_equal:date
-O campo em validação deve ser um valor anterior ou igual à data informada. As datas serão passadas para a função PHP strtotime para serem convertidas em uma instância válida de DateTime. Além disso, como a regra depois, o nome de outro campo em validação pode ser fornecido como o valor de data.
-# between:min,max
-O campo em validação deve ter um tamanho entre o mínimo e o máximo especificados (inclusive). Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra de tamanho.
-# boolean
-O campo em validação deve poder ser convertido como um booleano. As entradas aceitas são true, false, 1, 0, “1” e “0”.
-# confirmado
-O campo em validação deve ter um campo correspondente de {field}_confirmation. Por exemplo, se o campo sob validação for senha, um campo correspondente password_confirmation deverá estar presente na entrada.
-# current_password
-O campo em validação deve corresponder à senha do usuário autenticado. Você pode especificar um protetor de autenticação usando o primeiro parâmetro da regra:
+#### # before:date <a id="before"></a>
+
+O campo em validação deve ser um valor anterior à data informada. As datas serão passadas para a função PHP `strtotime` para serem convertidas em uma instância válida de `DateTime`. Além disso, como a regra `after`, o nome de outro campo em validação pode ser fornecido como o valor de `data`.
+
+#### # before_or_equal:date <a id="beforeequal"></a>
+
+O campo em validação deve ser um valor anterior ou igual à data informada. As datas serão passadas para a função PHP `strtotime` para serem convertidas em uma instância válida de `DateTime`. Além disso, como a regra `after`, o nome de outro campo em validação pode ser fornecido como o valor de `data`.
+
+#### # between:min,max <a id="between"></a>
+
+O campo em validação deve ter um tamanho entre o mínimo e o máximo especificados (inclusive). Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra de `size`.
+
+#### # boolean <a id="boolean"></a>
+
+O campo em validação deve poder ser convertido como um booleano. As entradas aceitas são `true`, `false`, `1`, `0`, `“1”` e `“0”`.
+
+
+#### # confirmed <a id="confirmed"></a>
+
+O campo em validação deve ter um campo correspondente `{field}_confirmation`. Por exemplo, se o campo sob validação for `password`, um campo correspondente `password_confirmation` deverá estar presente na entrada.
+
+#### # current_password <a id="current_password"></a>
+
+O campo em validação deve corresponder à senha do usuário autenticado. Você pode especificar um protetor de autenticação (`authenticatin guard`) usando o primeiro parâmetro da regra:
+
+```php
 'senha' => 'senha_atual:api'
-# date
-O campo sob validação deve ser uma data válida e não relativa de acordo com a função strtotime do PHP.
-# date_equals:date
-O campo em validação deve ser igual à data informada. As datas serão passadas para a função PHP strtotime para serem convertidas em uma instância válida de DateTime.
-# date_format:format
-O campo em validação deve corresponder ao formato fornecido. Você deve usar date ou date_format ao validar um campo, não ambos. Esta regra de validação suporta todos os formatos suportados pela classe DateTime do PHP.
-# recusado
-O campo em validação deve ser “no”, “off”, 0 ou false.
-# recusado_if:anotherfield,value,…
-O campo em validação deve ser “no”, “off”, 0, ou false se outro campo em validação for igual a um valor especificado.
-# different:field
-O campo em validação deve ter um valor diferente de field.
-# digits:value
-O inteiro sob validação deve ter um comprimento exato de valor.
-# digits_between:min,max
-A validação de inteiro deve ter um comprimento entre o mínimo e o máximo fornecidos.
-# dimensões
-O arquivo em validação deve ser uma imagem que atenda às restrições de dimensão conforme especificado pelos parâmetros da regra:
-'avatar' => 'dimensions:min_width=100,min_height=200'
+```
 
-As restrições disponíveis são: min_width, max_width, min_height, max_height, largura, altura, proporção.
-Uma restrição de proporção deve ser representada como largura dividida pela altura. Isso pode ser especificado por uma fração como 3/2 ou um float como 1,5:
+#### # date <a id="date"> </a>
+
+O campo sob validação deve ser uma data válida e não relativa de acordo com a função strtotime do PHP.
+
+#### # date_equals:date <a id="dateequals"></a>
+
+O campo em validação deve ser igual à data informada. As datas serão passadas para a função PHP `strtotime` para serem convertidas em uma instância válida de `DateTime`.
+
+#### # date_format:format <a id="date_format"></a>
+
+O campo em validação deve corresponder ao formato fornecido. Você deve usar date ou `date_format` ao validar um campo, não ambos. Esta regra de validação suporta todos os formatos suportados pela classe `DateTime` do PHP.
+
+#### # declined <a id="declined"></a>
+
+O campo em validação deve ser `“no”`, `“off”`, `0` ou `false`.
+
+#### # declined_if:anotherfield,value,… <a id="declined_if"></a>
+
+O campo em validação deve ser `“no”`, `“off”`, `0`, ou `false` se outro campo em validação for igual a um valor especificado.
+
+#### # different:field <a id="different"></a>
+
+O campo em validação deve ter um valor diferente de *field*.
+
+#### # digits:value <a id="digits"> </a>
+
+O inteiro sob validação deve ter um comprimento exato de *value*.
+
+#### # digits_between:min,max <a id="digits_between"></a>
+
+A validação de inteiro deve ter um comprimento entre o mínimo(*min*) e o máximo(*max*) fornecidos.
+
+#### # dimensions <a id="dimensions"></a>
+
+O arquivo em validação deve ser uma imagem que atenda às restrições de dimensão conforme especificado pelos parâmetros da regra:
+
+```php
+'avatar' => 'dimensions:min_width=100,min_height=200'
+```
+
+As restrições disponíveis são: *min_width*, *max_width*, *min_height*, *max_height*, *width*, *height*, *ratio*.
+
+Uma restrição de proporção deve ser representada como largura dividida pela altura. Isso pode ser especificado por uma fração como `3/2` ou um float como `1.5`:
+
+```php
 'avatar' => 'dimensões:proporção=3/2'
-Como esta regra requer vários argumentos, você pode usar o método Rule::dimensions para construir a regra fluentemente:
+```
+
+Como esta regra requer vários argumentos, você pode usar o método `Rule::dimensions` para construir a regra fluentemente:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 Validator::make($data, [
-'avatar' => [
-'required',
-Rule::dimensions()->maxWidth(1000)->maxHeight(500)->ratio(3 / 2),
-],
-]) ;
-# distinct
+    'avatar' => [
+        'required',
+        Rule::dimensions()->maxWidth(1000)->maxHeight(500)->ratio(3 / 2),
+    ],
+]);
+```
+
+#### # distinct <a id="distinct"></a>
+
 Ao validar arrays, o campo em validação não deve ter valores duplicados:
+
+```php
 'foo.*.id' => 'distinto'
-Distinct usa comparações de variáveis soltas por padrão. Para usar comparações estritas, você pode adicionar o parâmetro strict à sua definição de regra de validação:
-'foo.*.id' => 'distinto:estrito'
-Você pode adicionar ignore_case aos argumentos da regra de validação para fazer com que a regra ignore as diferenças de capitalização:
+```
+
+Distinct usa comparações de variáveis soltas por padrão. Para usar comparações estritas, você pode adicionar o parâmetro `strict` à sua definição de regra de validação:
+
+```php
+'foo.*.id' => 'distinto:strict'
+```
+
+Você pode adicionar `ignore_case` aos argumentos da regra de validação para fazer com que a regra ignore as diferenças de capitalização:
+
+```php 
 'foo.*.id' => 'distinto:ignore_case'
+```
+
+
 # doesnt_start_with:foo,bar,…
+
 O campo em validação não deve iniciar com um dos valores fornecidos.
+
 # doesnt_end_with:foo,bar,…
+
 O campo em validação não deve terminar com um dos valores fornecidos.
+
 # email
+
 O campo em validação deve ser formatado como endereço de email. Esta regra de validação utiliza o pacote egulias/email-validator para validar o endereço de email. Por padrão, o validador RFCValidation é aplicado, mas você também pode aplicar outros estilos de validação:
 'e-mail' => 'e-mail:rfc,dns'
 O exemplo acima aplicará as validações RFCValidation e DNSCheckValidation. Aqui está uma lista completa de estilos de validação que você pode aplicar:
