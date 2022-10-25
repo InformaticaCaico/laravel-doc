@@ -882,6 +882,20 @@ Abaixo está uma lista de todas as regras de validação disponíveis e suas fun
 
 [Distinct](#distinct)
 
+[Doesnt Start With](#doesnt_start)
+
+[Doesnt End With](#doesnt_end)
+
+[Email](#email)
+
+[Ends With](#ends_with)
+
+[Enum](#enum)
+
+[Exclude](#exclude)
+
+[Exclude If](#exclude_if)
+
 #### # accepted<a id="accepted"></a> 
 
 O campo em validação deve ser `yes`, `on`, `1` ou `true`. Isso é útil para validar a aceitação de “Termos de Serviço” ou campos semelhantes.
@@ -1070,50 +1084,78 @@ Você pode adicionar `ignore_case` aos argumentos da regra de validação para f
 'foo.*.id' => 'distinto:ignore_case'
 ```
 
-
-# doesnt_start_with:foo,bar,…
+#### # doesnt_start_with:foo,bar,… <a id="doesnt_start"></a>
 
 O campo em validação não deve iniciar com um dos valores fornecidos.
 
-# doesnt_end_with:foo,bar,…
+#### # doesnt_end_with:foo,bar,… <a id="doesnt_end"></a>
 
 O campo em validação não deve terminar com um dos valores fornecidos.
 
-# email
+#### # email <a id="email"></a>
 
-O campo em validação deve ser formatado como endereço de email. Esta regra de validação utiliza o pacote egulias/email-validator para validar o endereço de email. Por padrão, o validador RFCValidation é aplicado, mas você também pode aplicar outros estilos de validação:
+O campo em validação deve ser formatado como endereço de email. Esta regra de validação utiliza o pacote `egulias/email-validator` para validar o endereço de email. Por padrão, o validador `RFCValidation` é aplicado, mas você também pode aplicar outros estilos de validação:
+
+```php
 'e-mail' => 'e-mail:rfc,dns'
-O exemplo acima aplicará as validações RFCValidation e DNSCheckValidation. Aqui está uma lista completa de estilos de validação que você pode aplicar:
-rfc: RFCValidation
-strict: NoRFCWarningsValidation
-dns: DNSCheckValidation
-spoof: SpoofCheckValidation
-filtro: FilterEmailValidation
-O validador de filtro, que usa a função filter_var do PHP, vem com o Laravel e era o comportamento padrão de validação de e-mail do Laravel antes do Laravel versão 5.8.
-Os validadores dns e spoof requerem a extensão intl do PHP.
-# ends_with:foo,bar,…
+```
+
+O exemplo acima aplicará as validações `RFCValidation` e `DNSCheckValidation`. Aqui está uma lista completa de estilos de validação que você pode aplicar:
+
+- `rfc`: `RFCValidation`
+- `strict`: `NoRFCWarningsValidation`
+- `dns`: `DNSCheckValidation`
+- `spoof`: `SpoofCheckValidation`
+- `filter`: `FilterEmailValidation`
+- `filter_unicode`: `FilterEmailValidatio::unicode()`
+
+O validador `filter`, que usa a função `filter_var` do PHP, vem com o Laravel e era o comportamento padrão de validação de e-mail do Laravel antes do Laravel versão 5.8.
+
+> Os validadores dns e spoof requerem a extensão intl do PHP.
+
+#### # ends_with:foo,bar,… <a id="ends_with"></a>
+
 O campo em validação deve terminar com um dos valores fornecidos.
-# enum
-A regra Enum é uma regra baseada em classe que valida se o campo sob validação contém um valor enum válido. A regra Enum aceita o nome do enum como seu único argumento construtor:
+
+#### # enum <a id="exclude"></a>
+
+A regra `Enum` é uma regra baseada em classe que valida se o campo sob validação contém um valor enum válido. A regra `Enum` aceita o nome do enum como seu único argumento construtor:
+
+```php
 use App\Enums\ServerStatus;
 use Illuminate\Validation\Rules\Enum;
+ 
 $request->validate([
-'status' => [new Enum(ServerStatus::class)],
+    'status' => [new Enum(ServerStatus::class)],
 ]);
+```
+
 Enums estão disponíveis apenas no PHP 8.1+.
-# exclude
-O campo em validação será excluído dos dados da solicitação retornados pelos métodos validar e validar.
-# exclude_if:anotherfield,value
-O campo em validação será excluído dos dados da solicitação retornados pelos métodos validate e valided se o campo otherfield for igual a value.
-Se uma lógica de exclusão condicional complexa for necessária, você poderá utilizar o método Rule::excludeIf. Este método aceita um booleano ou um encerramento. Ao receber um fechamento, o fechamento deve retornar true ou false para indicar se o campo em validação deve ser excluído:
+
+#### # exclude <a id="exclude"></a>
+
+O campo em validação será excluído dos dados da solicitação retornados pelos métodos `validate` e `validated`.
+
+#### # exclude_if:anotherfield,value <a id="exclude_if"></a>
+
+O campo em validação será excluído dos dados da solicitação retornados pelos métodos `validate` e `validated` se o campo otherfield for igual a value.
+
+Se a logia de exclusão for complexa, você poderá utilizar o método `Rule::excludeIf`. Este método aceita um booleano ou uma *clojure*. Ao receber uma *clojure*, a *clojure* deve retornar `true` ou `false` para indicar se o campo em validação deve ser excluído:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 Validator::make($request->all(), [
-'role_id' => Rule::excludeIf($request->user()->is_admin),
+    'role_id' => Rule::excludeIf($request->user()->is_admin),
 ]);
+ 
 Validator::make($request->all(), [
-'role_id' => Rule::excludeIf(fn() => $request->user()->is_admin),
+    'role_id' => Rule::excludeIf(fn () => $request->user()->is_admin),
 ]);
+```
+
+
 # exclude_unless:anotherfield,value
 O campo em validação será excluído dos dados da solicitação retornados pelos métodos validate e valided, a menos que o campo de outro campo seja igual a value. Se o valor for nulo (exclude_unless:name,null), o campo em validação será excluído, a menos que o campo de comparação seja nulo ou o campo de comparação esteja ausente dos dados da solicitação.
 # exclude_with:anotherfield
