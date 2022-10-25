@@ -896,6 +896,30 @@ Abaixo está uma lista de todas as regras de validação disponíveis e suas fun
 
 [Exclude If](#exclude_if)
 
+[Exclude Unless](#exclude_unless)
+
+[Exclude With](#exlucde_with)
+
+[Exclude Without](#exclude_without)
+
+[Exits](#exits)
+
+[File](#file)
+
+[Filled](#filled)
+
+[Greater Than](#greater_than)
+
+[Greater Than Or Equal](#greater_than_equal)
+
+[Image (File)](#image_file)
+
+[In](#in)
+
+[In Array](#in_array)
+
+[Integer](#integer)
+
 #### # accepted<a id="accepted"></a> 
 
 O campo em validação deve ser `yes`, `on`, `1` ou `true`. Isso é útil para validar a aceitação de “Termos de Serviço” ou campos semelhantes.
@@ -1156,94 +1180,175 @@ Validator::make($request->all(), [
 ```
 
 
-# exclude_unless:anotherfield,value
-O campo em validação será excluído dos dados da solicitação retornados pelos métodos validate e valided, a menos que o campo de outro campo seja igual a value. Se o valor for nulo (exclude_unless:name,null), o campo em validação será excluído, a menos que o campo de comparação seja nulo ou o campo de comparação esteja ausente dos dados da solicitação.
-# exclude_with:anotherfield
-O campo em validação será excluído dos dados da solicitação retornados pelos métodos validate e valided se o campo anotherfield estiver presente.
-# exclude_without:anotherfield
-O campo em validação será excluído dos dados da requisição retornados pelos métodos validate e valided se o campo otherfield não estiver presente.
-# existe:tabela,coluna
+#### # exclude_unless:anotherfield,value <a id="exclude_unless"></a>
+
+O campo em validação será excluído dos dados da solicitação retornados pelos métodos `validate` e `validated`, a menos que o campo *anotherfield* seja igual a *value*. Se o valor for `null` (`exclude_unless:name,null`), o campo em validação será excluído, a menos que o campo de comparação seja `null` ou o campo de comparação esteja ausente dos dados da solicitação.
+
+#### # exclude_with:anotherfield <a id="exclude_with"></a>
+
+O campo em validação será excluído dos dados da solicitação retornados pelos métodos `validate` e `validated` se o campo *anotherfield* estiver presente.
+
+#### # exclude_without:anotherfield <a id="exclude_without"></a>
+
+O campo em validação será excluído dos dados da requisição retornados pelos métodos `validate` e `validated` se o campo *anotherfield* não estiver presente.
+
+#### # existe:table,column
+
 O campo sob validação deve existir em uma determinada tabela do banco de dados.
-Uso Básico da Regra Exists
+
+#### # Uso Básico da Regra Exists
+
+```php
 'state' => 'exists:states'
-Se a opção de coluna não for especificada, o nome do campo será usado. Portanto, nesse caso, a regra validará que a tabela do banco de dados de estados contém um registro com um valor de coluna de estado correspondente ao valor do atributo de estado da solicitação.
-# Especificando um nome de coluna personalizado
+```
+
+Se a opção `column` não for especificada, o nome do campo será usado. Portanto, nesse caso, a regra validará que a tabela do banco de dados de `states` contém um registro com um valor de coluna `state`correspondente ao valor do atributo `state` da solicitação.
+
+#### # Especificando um nome de coluna personalizado
+
 Você pode especificar explicitamente o nome da coluna do banco de dados que deve ser usado pela regra de validação, colocando-o após o nome da tabela do banco de dados:
-'estado' => 'existe:estados,abreviatura'
+
+```php
+'state' => 'exists:states,abbreviation'
+```
+
 Ocasionalmente, pode ser necessário especificar uma conexão de banco de dados específica a ser usada para a consulta existente. Você pode fazer isso acrescentando o nome da conexão ao nome da tabela:
-'email' => 'existe:connection.staff,email'
+
+```php
+'email' => 'exists:connection.staff,email'
+```
+
 Em vez de especificar o nome da tabela diretamente, você pode especificar o modelo Eloquent que deve ser usado para determinar o nome da tabela:
-'user_id' => 'existe:App\Models\User,id'
-Se você quiser personalizar a consulta executada pela regra de validação, poderá usar a classe Rule para definir a regra com fluência. Neste exemplo, também especificaremos as regras de validação como uma matriz em vez de usar o | caractere para delimitá-los:
+
+```php
+'user_id' => 'exists:App\Models\User,id'
+```
+
+Se você quiser personalizar a consulta executada pela regra de validação, poderá usar a classe `Rule` para definir a regra com fluência. Neste exemplo, também especificaremos as regras de validação como um array em vez de usar o caractere `|` para delimitá-los:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 Validator::make($data, [
-'email' => [
-'required',
-Rule::exists('staff')->where(function ($query) {
-return $query->where('account_id', 1 );
-}),
-],
+    'email' => [
+        'required',
+        Rule::exists('staff')->where(function ($query) {
+            return $query->where('account_id', 1);
+        }),
+    ],
 ]);
-Você pode especificar explicitamente o nome da coluna do banco de dados que deve ser usado pela regra exist gerada pelo método Rule::exists fornecendo o nome da coluna como o segundo argumento para o método exist:
-'estado' => Regra::exists('estados', 'abreviatura'),
-# arquivo
-O campo em validação deve ser um arquivo carregado com sucesso.
-# preenchido
+```
+
+Você pode especificar explicitamente o nome da coluna do banco de dados que deve ser usado pela regra `exists` gerada pelo método `Rule::exists` fornecendo o nome da coluna como o segundo argumento para o método `exists`:
+
+```php
+'state' => Regra::exists('states', 'abbreviation'),
+```
+
+#### # file <a id="file"></a>
+
+O campo validado deve ser um campo um arquivo que tenha sido enviado com sucesso.
+
+#### # filled <a id="filled"></a>
+
 O campo em validação não deve estar vazio quando estiver presente.
-# gt:field
-O campo em validação deve ser maior que o campo fornecido. Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra de tamanho.
-# gte:field
-O campo em validação deve ser maior ou igual ao campo fornecido. Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra de tamanho.
-# image
+
+#### # gt:field <a id="greater_than"></a>
+
+O campo em validação deve ser maior que o campo fornecido (*field*). Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra de `size`.
+
+#### # gte:field <a id="greater_than_equal"></a>
+
+O campo em validação deve ser maior ou igual ao campo fornecido (*field*). Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra `size`.
+
+#### # image <a id="image"></a>
+
 O arquivo em validação deve ser uma imagem (jpg, jpeg, png, bmp, gif, svg ou webp).
-# in:foo,bar,…
-O campo sob validação deve ser incluído na lista de valores fornecida. Como essa regra geralmente exige que você imploda uma matriz, o método Rule::in pode ser usado para construir a regra com fluência:
+
+#### # in:foo,bar,… <a id="in"> </a>
+
+O campo sob validação deve ser incluído na lista de valores fornecida. Como essa regra geralmente exige que você imploda (`implode`) um array, o método `Rule::in` pode ser usado para construir a regra com fluência:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 Validator::make($data, [
-'zones' => [
-'required',
-Rule::in(['first-zone', 'second-zone']),
-],
+    'zones' => [
+        'required',
+        Rule::in(['first-zone', 'second-zone']),
+    ],
 ]);
-Quando a regra in é combinada com a regra array, cada valor na matriz de entrada deve estar presente na lista de valores fornecida à regra in. No exemplo a seguir, o código do aeroporto LAS na matriz de entrada é inválido, pois não está contido na lista de aeroportos fornecida à regra in:
+```
+
+Quando a regra `in` é combinada com a regra `array`, cada valor no array de entrada deve estar presente na lista de valores fornecida à regra `in`. No exemplo a seguir, o código do aeroporto `LAS` no array de entrada é inválido, pois não está contido na lista de aeroportos fornecida à regra `in`:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 $input = [
-'aeroportos' => ['NYC', 'LAS'],
+    'airports' => ['NYC', 'LAS'],
 ];
+ 
 Validator::make($input, [
-'airports' => [
-'required',
-'array',
-],
-'airports.*' => Rule::in(['NYC', 'LIT']),
-]) ;
-# in_array:anotherfield.*
-O campo sob validação deve existir nos valores de outro campo.
-# integer
+    'airports' => [
+        'required',
+        'array',
+    ],
+    'airports.*' => Rule::in(['NYC', 'LIT']),
+]);
+``` 
+
+#### # in_array:anotherfield.* <a id="in_array"></a>
+
+O campo sob validação deve existir nos valores *anotherfield*.
+
+#### # integer <a id="integer"> </a>
+
 O campo em validação deve ser um número inteiro.
-Esta regra de validação não verifica se a entrada é do tipo de variável “integer”, apenas se a entrada é de um tipo aceito pela regra FILTER_VALIDATE_INT do PHP. Se você precisar validar a entrada como sendo um número, use esta regra em combinação com a regra de validação numérica.
+
+> Esta regra de validação não verifica se a entrada é do tipo de variável “integer”, apenas se a entrada é de um tipo aceito pela regra `FILTER_VALIDATE_INT` do PHP. Se você precisar validar a entrada como sendo um número, use esta regra em combinação com a regra de validação numérica.
+
 # ip
+
 O campo em validação deve ser um endereço IP.
+
 # ipv4
+
 O campo em validação deve ser um endereço IPv4.
+
 # ipv6
+
 O campo em validação deve ser um endereço IPv6.
+
 # json
+
 O campo em validação deve ser uma string JSON válida.
+
 # lt:field
+
 O campo em validação deve ser menor que o campo fornecido. Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra de tamanho.
+
 # lte:field
+
 O campo em validação deve ser menor ou igual ao campo fornecido. Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra de tamanho.
+
 # mac_address
+
 O campo em validação deve ser um endereço MAC.
+
 # max:value
+
 O campo em validação deve ser menor ou igual a um valor máximo. Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra de tamanho.
+
 # max_digits:value
+
 O inteiro sob validação deve ter um comprimento máximo de valor.
+
 # mimetypes:text/plain,…
+
 O arquivo sob validação deve corresponder a um dos tipos MIME fornecidos:
 'video' => 'mimetypes:video/avi,video/mpeg,video/quicktime'
 Para determinar o tipo MIME do arquivo carregado, o conteúdo do arquivo será lido e a estrutura tentará adivinhar o tipo MIME, que pode ser diferente do tipo MIME fornecido pelo cliente.
