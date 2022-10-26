@@ -944,7 +944,23 @@ Abaixo está uma lista de todas as regras de validação disponíveis e suas fun
 
 [Not In](#not_in)
 
+[Not Regex](#not_regex)
 
+[Nullable](#nullable)
+
+[Numeric](#numeric)
+
+[Password](#password)
+
+[Present](#present)
+
+[Prohibited](#prohibeted)
+
+[Prohibited If](#proibited_if)
+
+[Prohibited Unless](#proibited_unless)
+
+[Prohibits](#prohibits)
 
 #### # accepted<a id="accepted"></a> 
 
@@ -1369,11 +1385,11 @@ O campo em validação deve ser um endereço MAC.
 
 O campo em validação deve ser menor ou igual a um valor máximo. Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra `size`.
 
-# max_digits:value
+#### # max_digits:value
 
 O inteiro sob validação deve ter um comprimento máximo *value*.
 
-# mimetypes:text/plain,… <a id="mime"></a>
+#### # mimetypes:text/plain,… <a id="mime"></a>
 
 O arquivo sob validação deve corresponder a um dos tipos MIME fornecidos:
 
@@ -1395,58 +1411,95 @@ O arquivo em validação deve ter um tipo MIME correspondente a uma das extensõ
 
 Mesmo que você só precise especificar as extensões, esta regra realmente valida o tipo MIME do arquivo lendo o conteúdo do arquivo e adivinhando seu tipo MIME. Uma lista completa de tipos MIME e suas extensões correspondentes pode ser encontrada no seguinte local: [Mime Types](https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types).
 
-# min:value <a id="min"></a>
+#### # min:value <a id="min"></a>
 
 O campo em validação deve ter um valor mínimo. Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra `size`.
 
-# min_digits:value <a id="min_digits"></a>
+#### # min_digits:value <a id="min_digits"></a>
 
 O inteiro sob validação deve ter um comprimento mínimo de valor.
 
-# multiple_of:value
+#### # multiple_of:value
 
 O campo sob validação deve ser um múltiplo de value.
 ! A extensão PHP bcmath é necessária para usar a regra multiple_of.
-# not_in:foo,bar,…
-O campo sob validação não deve ser incluído na lista de valores fornecida. O método Rule::notIn pode ser usado para construir fluentemente a regra:
-use Iluminar\Validação\Regra;
+
+#### # not_in:foo,bar,… <a id="not_int"></a>
+
+O campo sob validação não deve ser incluído na lista de valores fornecida. O método `Rule::notIn` pode ser usado para construir fluentemente a regra:
+
+```php
+use Illuminate\Validation\Rule;
+ 
 Validator::make($data, [
-'toppings' => [
-'required',
-Rule::notIn(['sprinkles', 'cherries']),
-],
+    'toppings' => [
+        'required',
+        Rule::notIn(['sprinkles', 'cherries']),
+    ],
 ]);
-# not_regex:pattern
+```
+
+### not_regex:pattern <a id="not_regex"></a>
+
 O campo sob validação não deve corresponder à expressão regular fornecida.
-Internamente, esta regra usa a função PHP preg_match. O padrão especificado deve obedecer à mesma formatação exigida por preg_match e, portanto, também incluir delimitadores válidos. Por exemplo: 'email' => 'not_regex:/^.+$/i'.
-Ao usar os padrões regex / not_regex, pode ser necessário especificar suas regras de validação usando uma matriz em vez de usar | delimitadores, especialmente se a expressão regular contiver um | personagem.
-# nullable
-O campo em validação pode ser nulo.
-# numérico
-O campo em validação deve ser numérico.
-# senha
+
+Internamente, esta regra usa a função PHP `preg_match`. O padrão especificado deve obedecer à mesma formatação exigida por `preg_match` e, portanto, também incluir delimitadores válidos. Por exemplo: `'email' => 'not_regex:/^.+$/i'`.
+
+> Ao usar os padrões `regex / not_regex`, pode ser necessário especificar suas regras de validação usando um array em vez de usar delimitadores `|`, especialmente se a expressão regular contiver um caractere `|`.
+
+#### # nullable <a id="nullable"> </a>
+
+O campo em validação pode ser `null`.
+
+#### # numeric <a id="numeric"></a>
+
+O campo em validação deve ser `numeric`.
+
+#### # senha <a id="password"></a>
+
 O campo em validação deve corresponder à senha do usuário autenticado.
-! Esta regra foi renomeada para current_password com a intenção de removê-la no Laravel 9. Por favor, use a regra Current Password.
-# presente
+
+> Esta regra foi renomeada para `current_password` com a intenção de removê-la no Laravel 9. Por favor, use a regra `current_password`.
+
+#### # present <a id="present"></a>
+
 O campo em validação deve estar presente nos dados de entrada, mas pode estar vazio.
-# proibido
+
+#### # prohibited <a id="prohibited"></a>
+
 O campo em validação deve ser uma string vazia ou não estar presente.
-# proibido_if:anotherfield,value,…
-O campo em validação deve ser uma string vazia ou não está presente se o campo otherfield for igual a qualquer valor.
-Se uma lógica de proibição condicional complexa for necessária, você pode utilizar o método Rule::prohibitedIf. Este método aceita um booleano ou um encerramento. Ao receber um fechamento, o fechamento deve retornar true ou false para indicar se o campo em validação deve ser proibido:
+
+#### # proibido_if:anotherfield,value,… <a id="prohibited_if"></a>
+
+O campo em validação deve ser uma string vazia ou não estar presente se o campo *otherfield* for igual a qualquer *value*.
+
+Se uma lógica de proibição condicional complexa for necessária, você pode utilizar o método `Rule::prohibitedIf`. Este método aceita um booleano ou uma clojure. Ao receber uma clojure, o clojure deve retornar `true` ou `false` para indicar se o campo em validação deve ser proibido:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 Validator::make($request->all(), [
-'role_id' => Rule::prohibitedIf($request->user()->is_admin),
+    'role_id' => Rule::prohibitedIf($request->user()->is_admin),
 ]);
+ 
 Validator::make($request->all(), [
-'role_id' => Rule::prohibitedIf(fn() => $request->user()->is_admin),
+    'role_id' => Rule::prohibitedIf(fn () => $request->user()->is_admin),
 ]);
-# proibido_unless:anotherfield,value,…
-O campo em validação deve ser uma string vazia ou não está presente, a menos que o campo anotherfield seja igual a qualquer valor.
-# proíbe:outrocampo,…
-Se o campo em validação estiver presente, nenhum campo em outro campo poderá estar presente, mesmo que vazio.
+```
+
+
+##### # proibido_unless:anotherfield,value,… <a id="prohibited_unless"></a>
+
+
+O campo em validação deve ser uma string vazia ou não estar presente, a menos que o campo *anotherfield* seja igual a qualquer valor.
+
+#### # prohibits:outrocampo,… <a id="prohibits"></a>
+
+Se o campo em validação estiver presente, nenhum campo em *anotherfield* poderá estar presente, mesmo que vazio.
+
 # regex:pattern
+
 O campo sob validação deve corresponder à expressão regular fornecida.
 Internamente, esta regra usa a função PHP preg_match. O padrão especificado deve obedecer à mesma formatação exigida por preg_match e, portanto, também incluir delimitadores válidos. Por exemplo: 'email' => 'regex:/^.+@.+$/i'.
 ! Ao usar os padrões regex / not_regex, pode ser necessário especificar regras em uma matriz em vez de usar | delimitadores, especialmente se a expressão regular contiver um | personagem.
