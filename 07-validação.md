@@ -962,6 +962,42 @@ Abaixo está uma lista de todas as regras de validação disponíveis e suas fun
 
 [Prohibits](#prohibits)
 
+[Regular Expression](#regular_expression)
+
+[Required](#required)
+
+[Required If](#required_if)
+
+[Required Unless](#required_unless)
+
+[Required With](#required_with)
+
+[Required With All](#require_with_all)
+
+[Required Without](#required_without)
+
+[Required Without All](#required_without)
+
+[Required Array Keys](#required_array)
+
+[Same](#same)
+
+[Size](#size)
+
+[String](#string)
+
+[Sometimes](#sometimes)
+
+[Starts With]($starts_with)
+
+[Timezone](#timezone)
+
+[Unique (Database)](#uniquedb)
+
+[URL](#url)
+
+[UUID](#uuid)
+
 #### # accepted<a id="accepted"></a> 
 
 O campo em validação deve ser `yes`, `on`, `1` ou `true`. Isso é útil para validar a aceitação de “Termos de Serviço” ou campos semelhantes.
@@ -1439,7 +1475,7 @@ Validator::make($data, [
 ]);
 ```
 
-### not_regex:pattern <a id="not_regex"></a>
+#### # not_regex:pattern <a id="not_regex"></a>
 
 O campo sob validação não deve corresponder à expressão regular fornecida.
 
@@ -1498,45 +1534,75 @@ O campo em validação deve ser uma string vazia ou não estar presente, a menos
 
 Se o campo em validação estiver presente, nenhum campo em *anotherfield* poderá estar presente, mesmo que vazio.
 
-# regex:pattern
+#### # regex:pattern <a id="regular_expression"></a>
 
 O campo sob validação deve corresponder à expressão regular fornecida.
-Internamente, esta regra usa a função PHP preg_match. O padrão especificado deve obedecer à mesma formatação exigida por preg_match e, portanto, também incluir delimitadores válidos. Por exemplo: 'email' => 'regex:/^.+@.+$/i'.
-! Ao usar os padrões regex / not_regex, pode ser necessário especificar regras em uma matriz em vez de usar | delimitadores, especialmente se a expressão regular contiver um | personagem.
-# obrigatório
-O campo em validação deve estar presente nos dados de entrada e não vazio. Um campo é considerado “vazio” se uma das seguintes condições for verdadeira:
-. O valor é nulo.
+
+Internamente, esta regra usa a função PHP `preg_match`. O padrão especificado deve obedecer à mesma formatação exigida por `preg_match` e, portanto, também incluir delimitadores válidos. Por exemplo: `'email' => 'regex:/^.+@.+$/i'`.
+
+> Ao usar os padrões `regex / not_regex`, pode ser necessário especificar regras em uma matriz em vez de usar `|` delimitadores, especialmente se a expressão regular contiver um caractere `|`.
+
+#### # required
+
+O campo em validação deve estar presente nos dados de entrada e não vazio. Um campo é considerado “empty” se uma das seguintes condições for verdadeira:
+
+. O valor é `null`.
 . O valor é uma string vazia.
-. O valor é um array vazio ou um objeto Countable vazio.
+. O valor é um array vazio ou um objeto `Countable` vazio.
 . O valor é um arquivo carregado sem caminho.
 
-# required_if:anotherfield,value,…
+#### # required_if:anotherfield,value,… <a id="required_if"> </a>
+
 O campo em validação deve estar presente e não vazio se o campo otherfield for igual a qualquer valor.
-Se você quiser construir uma condição mais complexa para a regra required_if, você pode usar o método Rule::requiredIf. Este método aceita um booleano ou um encerramento. Ao passar um encerramento, o encerramento deve retornar verdadeiro ou falso para indicar se o campo em validação é obrigatório:
+
+Se você quiser construir uma condição mais complexa para a regra `required_if`, você pode usar o método `Rule::requiredIf`. Este método aceita um booleano ou uma clojure. Ao passar uma clojure, a clojure deve retornar `true` ou `false` para indicar se o campo em validação é obrigatório:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 Validator::make($request->all(), [
-'role_id' => Rule::requiredIf($request->user()->is_admin),
+    'role_id' => Rule::requiredIf($request->user()->is_admin),
 ]);
+ 
 Validator::make($request->all(), [
-'role_id' => Rule::requiredIf(fn() => $request->user()->is_admin),
+    'role_id' => Rule::requiredIf(fn () => $request->user()->is_admin),
 ]);
-# required_unless:anotherfield,value,…
-O campo em validação deve estar presente e não vazio, a menos que o campo anotherfield seja igual a qualquer valor. Isso também significa que outro campo deve estar presente nos dados da solicitação, a menos que o valor seja nulo. Se o valor for nulo (required_unless:name,null), o campo em validação será obrigatório, a menos que o campo de comparação seja nulo ou o campo de comparação esteja ausente dos dados da solicitação.
-# required_with:foo,bar,…
-O campo sob validação deve estar presente e não vazio somente se algum dos outros campos especificados estiver presente e não vazio.
-# required_with_all:foo,bar,…
-O campo sob validação deve estar presente e não vazio somente se todos os outros campos especificados estiverem presentes e não vazios.
-# required_without:foo,bar,…
-O campo sob validação deve estar presente e não vazio apenas quando algum dos outros campos especificados estiver vazio ou não estiver presente.
-# required_without_all:foo,bar,…
-O campo sob validação deve estar presente e não vazio somente quando todos os outros campos especificados estiverem vazios ou não estiverem presentes.
-# required_array_keys:foo,bar,…
+```
+
+#### # required_unless:anotherfield,value,… <a id="required_unless"></a>
+
+O campo em validação deve estar presente e não vazio, a menos que o campo *anotherfield* seja igual a qualquer valor. Isso também significa que outro campo deve estar presente nos dados da solicitação, a menos que o valor seja `null`. Se o valor for `null` (`required_unless:name,null`), o campo em validação será obrigatório, a menos que o campo de comparação seja `null` ou o campo de comparação esteja ausente dos dados da solicitação.
+
+#### # required_with:foo,bar,… <a id="required_if"></a>
+
+O campo sob validação deve estar presente e não estar vazio se, somente se, algum dos outros campos especificados também estiverem presentes e não-vazios.
+
+#### # required_with_all:foo,bar,… <a id="required_f"></a>
+
+O campo sob validação deve estar presente e não-vazio se, somente se, todos os outros campos especificados estiverem presentes e não vazios.
+
+#### # required_without:foo,bar,… <a id="required_without"></a>
+
+O campo sob validação deve estar presente e não-vazio apenas quando algum dos outros campos especificados estiver vazio ou não estiver presente.
+
+#### # required_without_all:foo,bar,… <a id="required_without"></a>
+
+O campo sob validação deve estar presente e não-vazio somente quando todos os outros campos especificados estiverem vazios ou não estiverem presentes.
+
+#### # required_array_keys:foo,bar,… <a id="required_array"></a>
+
 O campo sob validação deve ser um array e deve conter pelo menos as chaves especificadas.
-# same:field
+
+#### # same:field <a id="same"></a>
+
 O campo fornecido deve corresponder ao campo em validação.
-#size:value
-O campo em validação deve ter um tamanho que corresponda ao valor fornecido. Para dados de string, o valor corresponde ao número de caracteres. Para dados numéricos, valor corresponde a um determinado valor inteiro (o atributo também deve ter a regra numérica ou inteira). Para uma matriz, o tamanho corresponde à contagem da matriz. Para arquivos, o tamanho corresponde ao tamanho do arquivo em kilobytes. Vejamos alguns exemplos:
+
+#### # size:value <a id="size"></a>
+
+O campo em validação deve ter um tamanho que corresponda ao valor fornecido. Para dados de string, o valor corresponde ao número de caracteres. Para dados numéricos, valor corresponde a um determinado valor inteiro (o atributo também deve ter a regra `numeric` ou `integer`). Para um array, o *tamanho* corresponde à `count` do array. Para arquivos, o tamanho corresponde ao tamanho do arquivo em kilobytes. Vejamos alguns exemplos:
+
+```php
 // Valida se uma string tem exatamente 12 caracteres…
 'title' => 'size:12';
 // Valida se um inteiro fornecido é igual a 10…
@@ -1545,43 +1611,93 @@ O campo em validação deve ter um tamanho que corresponda ao valor fornecido. P
 'tags' => 'array|size:5';
 // Valida se um arquivo carregado tem exatamente 512 kilobytes…
 'image' => 'file|size:512';
-starts_with:foo,bar,…
+```
+
+#### # starts_with:foo,bar,… <a id="starts_with"> </a>
+
 O campo em validação deve iniciar com um dos valores fornecidos.
-# string
-O campo em validação deve ser uma string. Se você quiser permitir que o campo também seja nulo, atribua a regra anulável ao campo.
-# timezone
-O campo em validação deve ser um identificador de fuso horário válido de acordo com a função PHP timezone_identifiers_list.
-# unique:table,column
+
+#### # string <a id="string"></a>
+
+O campo em validação deve ser uma string. Se você quiser permitir que o campo também seja `null`, atribua a regra `nulllable` ao campo.
+
+#### # timezone <a id="timezone"></a>
+
+O campo em validação deve ser um identificador de fuso horário válido de acordo com a função PHP `timezone_identifiers_list`.
+
+# unique:table,column <a id="uniquedb"></a>
+
 O campo sob validação não deve existir na tabela de banco de dados fornecida.
-Especificando um nome de tabela/coluna personalizado:
+
+**Especificando um nome de tabela/coluna personalizado:**
+
 Em vez de especificar o nome da tabela diretamente, você pode especificar o modelo Eloquent que deve ser usado para determinar o nome da tabela:
+
+```php
 'email' => 'unique:App\Models\User,email_address'
-A opção de coluna pode ser usada para especificar a coluna de banco de dados correspondente ao campo. Se a opção de coluna não for especificada, será utilizado o nome do campo em validação.
+```
+
+A opção `column` pode ser usada para especificar a coluna de banco de dados correspondente ao campo. Se a opção `column` não for especificada, será utilizado o nome do campo em validação.
+
+```php
 'email' => 'unique:users,email_address'
-Especificando uma conexão de banco de dados personalizada
+```
+
+**Especificando uma conexão de banco de dados personalizada**
+
 Ocasionalmente, pode ser necessário definir uma conexão personalizada para consultas de banco de dados feitas pelo Validador. Para fazer isso, você pode preceder o nome da conexão ao nome da tabela:
+
+```php
 'email' => 'unique:connection.users,email_address'
-Forçando uma regra exclusiva para ignorar um determinado ID:
+```
+
+**Forçando uma regra exclusiva para ignorar um determinado ID:**
+
 Às vezes, você pode querer ignorar um determinado ID durante a validação exclusiva. Por exemplo, considere uma tela de “atualizar perfil” que inclua o nome do usuário, endereço de e-mail e local. Você provavelmente desejará verificar se o endereço de e-mail é exclusivo. No entanto, se o usuário alterar apenas o campo de nome e não o campo de email, você não deseja que um erro de validação seja gerado porque o usuário já é o proprietário do endereço de email em questão.
-Para instruir o validador a ignorar o ID do usuário, usaremos a classe Rule para definir a regra com fluência. Neste exemplo, também especificaremos as regras de validação como uma matriz em vez de usar o | caractere para delimitar as regras:
+
+Para instruir o validador a ignorar o ID do usuário, usaremos a classe `Rule` para definir a regra com fluência. Neste exemplo, também especificaremos as regras de validação como um array em vez de usar o caractere `|` para delimitar as regras.
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 Validator::make($data, [
-'email' => [
-'required',
-Rule::unique('users')->ignore($user->id),
-],
+    'email' => [
+        'required',
+        Rule::unique('users')->ignore($user->id),
+    ],
 ]);
-! Você nunca deve passar nenhuma entrada de solicitação controlada pelo usuário para o método ignore. Em vez disso, você deve passar apenas um ID exclusivo gerado pelo sistema, como um ID de incremento automático ou UUID de uma instância do modelo Eloquent. Caso contrário, seu aplicativo ficará vulnerável a um ataque de injeção de SQL.
-Em vez de passar o valor da chave do modelo para o método ignore, você também pode passar toda a instância do modelo. O Laravel extrairá automaticamente a chave do modelo:
+```
+
+> Você nunca deve passar nenhuma entrada de solicitação controlada pelo usuário para o método `ignore`. Em vez disso, você deve passar apenas um ID exclusivo gerado pelo sistema, como um ID de incremento automático ou UUID de uma instância do modelo Eloquent. Caso contrário, seu aplicativo ficará vulnerável a um ataque de injeção de SQL.
+
+
+Em vez de passar o valor da chave do modelo para o método `ignore`, você também pode passar toda a instância do modelo. O Laravel extrairá automaticamente a chave do modelo:
+
+```php
 Rule::unique('users')->ignore($user)
-Se sua tabela usa um nome de coluna de chave primária diferente de id, você pode especificar o nome da coluna ao chamar o método ignore:
+```
+
+Se sua tabela usa um nome de coluna de chave primária diferente de `id`, você pode especificar o nome da coluna ao chamar o método `ignore`:
+
+```php
 Rule::unique('users')->ignore($user->id, 'user_id')
-Por padrão, a regra exclusiva verificará a exclusividade da coluna correspondente ao nome do atributo que está sendo validado. No entanto, você pode passar um nome de coluna diferente como segundo argumento para o método exclusivo:
+```
+
+Por padrão, a regra `unique` verificará a exclusividade da coluna correspondente ao nome do atributo que está sendo validado. No entanto, você pode passar um nome de coluna diferente como segundo argumento para o método exclusivo:
+
+```php
 Rule::unique('users', 'email_address')->ignore($user->id),
-Adicionando Cláusulas Where Adicionais:
-Você pode especificar condições de consulta adicionais personalizando a consulta usando o método where. Por exemplo, vamos adicionar uma condição de consulta que abranja a consulta apenas para pesquisar registros que tenham um valor de coluna account_id igual a 1:
+```
+
+**Adicionando Cláusulas Where Adicionais:**
+
+Você pode especificar condições de consulta adicionais personalizando a consulta usando o método `where`. Por exemplo, vamos adicionar uma condição de consulta que abranja a consulta apenas para pesquisar registros que tenham um valor de coluna `account_id` igual a `1`:
+
+```php
 'email' => Regra::unique('users')->where(fn ($query) => $query->where('account_id', 1))
+```
+
 # url
 O campo em validação deve ser uma URL válida.
 # uuid
