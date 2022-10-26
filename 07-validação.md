@@ -1625,7 +1625,7 @@ O campo em validação deve ser uma string. Se você quiser permitir que o campo
 
 O campo em validação deve ser um identificador de fuso horário válido de acordo com a função PHP `timezone_identifiers_list`.
 
-# unique:table,column <a id="uniquedb"></a>
+#### # unique:table,column <a id="uniquedb"></a>
 
 O campo sob validação não deve existir na tabela de banco de dados fornecida.
 
@@ -1698,163 +1698,264 @@ Você pode especificar condições de consulta adicionais personalizando a consu
 'email' => Regra::unique('users')->where(fn ($query) => $query->where('account_id', 1))
 ```
 
-# url
+#### # url <a id="url"></a>
+
 O campo em validação deve ser uma URL válida.
-# uuid
+
+#### # uuid <a id="uuid"></a>
+
 O campo em validação deve ser um identificador universalmente exclusivo (UUID) válido RFC 4122 (versão 1, 3, 4 ou 5).
-# Adicionando regras condicionalmente
-# Ignorando a validação quando os campos têm determinados valores
+
+## # Adicionando regras condicionalmente
+
+### # Ignorando a validação quando os campos têm determinados valores
+
 Ocasionalmente, você pode desejar não validar um determinado campo se outro campo tiver um determinado valor. Você pode fazer isso usando a regra de validação exclude_if. Neste exemplo, os campos compromisso_data e médico_nome não serão validados se o campo has_appointment tiver um valor false:
+
+
+```php
 use Illuminate\Support\Facades\Validator;
+ 
 $validator = Validator::make($data, [
-'has_appointment' => 'required|boolean',
-'appointment_date' => 'exclude_if:has_appointment,false|required|date',
-'doctor_name' => 'exclude_if:has_appointment, false|required|string',
+    'has_appointment' => 'required|boolean',
+    'appointment_date' => 'exclude_if:has_appointment,false|required|date',
+    'doctor_name' => 'exclude_if:has_appointment,false|required|string',
 ]);
-Como alternativa, você pode usar a regra exclude_unless para não validar um determinado campo, a menos que outro campo tenha um determinado valor:
+```
+
+
+Como alternativa, você pode usar a regra `exclude_unless` para não validar um determinado campo, a menos que outro campo tenha um determinado valor:
+
+```php
 $validator = Validator::make($data, [
-'has_appointment' => 'required|boolean',
-'appointment_date' => 'exclude_unless:has_appointment,true|required|date',
-'doctor_name' => 'exclude_unless:has_appointment, true|required|string',
+    'has_appointment' => 'required|boolean',
+    'appointment_date' => 'exclude_unless:has_appointment,true|required|date',
+    'doctor_name' => 'exclude_unless:has_appointment,true|required|string',
 ]);
-# Validando quando presente
-Em algumas situações, você pode querer executar verificações de validação em um campo somente se esse campo estiver presente nos dados que estão sendo validados. Para fazer isso rapidamente, adicione a regra às vezes à sua lista de regras:
-$v = Validador::make($dados, [
-'email' => 'às vezes|requerido|email',
+```
+
+### # Validando quando presente
+
+Em algumas situações, você pode executar verificações de validação em um campo somente se esse campo estiver presente nos dados que estão sendo validados. Para fazer isso rapidamente, adicione a regra `sometimes` à sua lista de regras:
+
+```php
+$v = Validator::make($data, [
+    'email' => 'sometimes|required|email',
 ]);
-No exemplo acima, o campo email só será validado se estiver presente no array $data.
-Se você estiver tentando validar um campo que deve estar sempre presente, mas pode estar vazio, confira esta nota sobre campos opcionais.
-# Validação condicional complexa
+```
+
+No exemplo acima, o campo `email` só será validado se estiver presente no array `$data`.
+
+> Se você estiver tentando validar um campo que deve estar sempre presente, mas pode estar vazio, confira esta nota [sobre campos opcionais.](https://laravel.com/docs/9.x/validation#a-note-on-optional-fields)
+
+### # Validação condicional complexa
+
 Às vezes você pode querer adicionar regras de validação baseadas em lógica condicional mais complexa. Por exemplo, você pode querer exigir um determinado campo apenas se outro campo tiver um valor maior que 100. Ou você pode precisar que dois campos tenham um determinado valor somente quando outro campo estiver presente. Adicionar essas regras de validação não precisa ser uma dor. Primeiro, crie uma instância do Validator com suas regras estáticas que nunca mudam:
+
+```php
 use Illuminate\Support\Facades\Validator;
+ 
 $validator = Validator::make($request->all(), [
-'email' => 'required|email',
-'games' => 'required|numeric',
+    'email' => 'required|email',
+    'games' => 'required|numeric',
 ]);
-Vamos supor que nosso aplicativo da web seja para colecionadores de jogos. Se um colecionador de jogos se registrar em nosso aplicativo e possuir mais de 100 jogos, queremos que ele explique por que possui tantos jogos. Por exemplo, talvez eles tenham uma loja de revenda de jogos, ou talvez apenas gostem de colecionar jogos. Para adicionar condicionalmente esse requisito, podemos usar o método às vezes na instância do Validador.
-$validador->às vezes('motivo', 'obrigatório|max:500', função ($entrada) {
-return $entrada->jogos >= 100;
+```
+
+Vamos supor que nosso aplicativo da web seja para colecionadores de jogos. Se um colecionador de jogos se registrar em nosso aplicativo e possuir mais de 100 jogos, queremos que ele explique por que possui tantos jogos. Por exemplo, talvez eles tenham uma loja de revenda de jogos, ou talvez apenas gostem de colecionar jogos. Para adicionar condicionalmente esse requisito, podemos usar o método `sometimes` na instância `Validator`.
+
+```php
+$validator->sometimes('reason', 'required|max:500', function ($input) {
+    return $input->games >= 100;
 });
-O primeiro argumento passado para o método às vezes é o nome do campo que estamos validando condicionalmente. O segundo argumento é uma lista das regras que queremos adicionar. Se o encerramento passado como o terceiro argumento retornar verdadeiro, as regras serão adicionadas. Esse método facilita muito a criação de validações condicionais complexas. Você pode até adicionar validações condicionais para vários campos de uma só vez:
-$validator->às vezes(['motivo', 'custo'], 'obrigatório', função ($entrada) {
-return $entrada->jogos >= 100;
+```
+
+O primeiro argumento passado para o método `sometimes` é o nome do campo que estamos validando condicionalmente. O segundo argumento é uma lista das regras que queremos adicionar. Se o encerramento passado como o terceiro argumento retornar `true`, as regras serão adicionadas. Esse método facilita muito a criação de validações condicionais complexas. Você pode até adicionar validações condicionais para vários campos de uma só vez:
+
+```php
+$validator->sometimes(['reason', 'cost'], 'required', function ($input) {
+    return $input->games >= 100;
 });
-O parâmetro $input passado para seu encerramento será uma instância de Illuminate\Support\Fluent e pode ser usado para acessar sua entrada e arquivos sob validação.
-# Validação de Array Condicional Complexo
-Às vezes você pode querer validar um campo com base em outro campo no mesmo array aninhado cujo índice você não conhece. Nessas situações, você pode permitir que seu encerramento receba um segundo argumento que será o item individual atual no array sendo validado:
+```
+
+
+> O parâmetro `$input` passado para seu encerramento será uma instância de `Illuminate\Support\Fluent` e pode ser usado para acessar sua entrada e arquivos sob validação.
+
+#### # Validação de Array Condicional Complexo
+
+Às vezes, você pode validar um campo com base em outro campo no mesmo array aninhado cujos índices você não conhece. Nessas situações, você pode permitir que sua clojure receba um segundo argumento que será o item individual atual no array sendo validado:
+
+```php
 $input = [
-'channels' => [
-[
-'type' => 'email',
-'address' => 'abigail@example.com',
-],
-[
-'type' => 'url',
-'address' => ' https://example.com ',
-],
-],
+    'channels' => [
+        [
+            'type' => 'email',
+            'address' => 'abigail@example.com',
+        ],
+        [
+            'type' => 'url',
+            'address' => 'https://example.com',
+        ],
+    ],
 ];
-$validador->às vezes('canais.*.endereço', 'email', function ($entrada, $item) {
-return $item->tipo === 'email';
+ 
+$validator->sometimes('channels.*.address', 'email', function ($input, $item) {
+    return $item->type === 'email';
 });
-$validator->às vezes('canais.*.endereço', 'url', function ($entrada, $item) {
-return $item->tipo !== 'email';
+ 
+$validator->sometimes('channels.*.address', 'url', function ($input, $item) {
+    return $item->type !== 'email';
 });
+```
+
 Assim como o parâmetro $input passado para o encerramento, o parâmetro $item é uma instância de Illuminate\Support\Fluent quando os dados do atributo são uma matriz; caso contrário, é uma string.
-# Validando arrays
-Conforme discutido na documentação da regra de validação de array, a regra de array aceita uma lista de chaves de array permitidas. Se alguma chave adicional estiver presente na matriz, a validação falhará:
+
+
+## # Validando arrays
+
+Conforme discutido na documentação da regra de validação de array, a regra de `array` aceita uma lista de chaves de array permitidas. Se alguma chave adicional estiver presente na array, a validação falhará:
+
+```php
 use Illuminate\Support\Facades\Validator;
+ 
 $input = [
-'user' => [
-'name' => 'Taylor Otwell',
-'username' => 'taylorotwell',
-'admin' => true,
-],
+    'user' => [
+        'name' => 'Taylor Otwell',
+        'username' => 'taylorotwell',
+        'admin' => true,
+    ],
 ];
+ 
 Validator::make($input, [
-'user' => 'array:username,locale',
+    'user' => 'array:username,locale',
 ]);
-Em geral, você deve sempre especificar as chaves de matriz que podem estar presentes em sua matriz. Caso contrário, os métodos validate e valided do validador retornarão todos os dados validados, incluindo a matriz e todas as suas chaves, mesmo que essas chaves não tenham sido validadas por outras regras de validação de matriz aninhada.
-# Validando a entrada de matriz
-aninhada Validar campos de entrada de formulário baseados em matriz aninhada não precisa ser uma dor. Você pode usar “notação de ponto” para validar atributos dentro de um array. Por exemplo, se a solicitação HTTP recebida contiver um campo photos[profile], você poderá validá-lo assim:
+```
+
+Em geral, você deve sempre especificar as chaves do array que podem estar presentes em seu array. Caso contrário, os métodos `validate` e `validated` retornarão todos os dados validados, incluindo o array e todas as suas chaves, mesmo que essas chaves não tenham sido validadas por outras regras de validação aninhada.
+
+### # Validando a entrada de arrays aninhados
+
+Validar arrays aninhados baseados nos campus do formulário é difícil. Você deve usar a notação . ("dot notation") para validar atribudos dentro do array.  Por exemplo, se a solicitação HTTP recebida contiver um campo `photos[profile]`, você poderá validá-lo assim:
+
+```php
 use Illuminate\Support\Facades\Validator;
+ 
 $validator = Validator::make($request->all(), [
-'photos.profile' => 'required|image',
+    'photos.profile' => 'required|image',
 ]);
-Você também pode validar cada elemento de um array. Por exemplo, para validar que cada email em um determinado campo de entrada de matriz é exclusivo, você pode fazer o seguinte:
+```
+
+Você também pode validar cada elemento de um array. Por exemplo, para validar que cada email em um determinado campo de entrada do array é exclusivo, você pode fazer o seguinte:
+
+```php
 $validator = Validator::make($request->all(), [
-'person. .email' => 'email|unique:users',
-'person. .first_name' => 'required_with:person.*.last_name' ,
+    'person.*.email' => 'email|unique:users',
+    'person.*.first_name' => 'required_with:person.*.last_name',
 ]);
-Da mesma forma, você pode usar o caractere * ao especificar mensagens de validação personalizadas em seus arquivos de idioma, facilitando o uso de uma única mensagem de validação para campos baseados em array:
+```
+
+Da mesma forma, você pode usar o caractere `*` ao especificar mensagens de validação personalizadas em seus arquivos de idioma, facilitando o uso de uma única mensagem de validação para campos baseados em array:
+
+```php
 'custom' => [
-'person.*.email' => [
-'unique' => 'Cada pessoa deve ter um endereço de e-mail exclusivo',
-]
+    'person.*.email' => [
+        'unique' => 'Each person must have a unique email address',
+    ]
 ],
+```
+
 # Acessando dados de matriz aninhada
-Às vezes, você pode precisar acessar o valor de um determinado elemento de matriz aninhada ao atribuir regras de validação ao atributo. Você pode fazer isso usando o método Rule::forEach. O método forEach aceita um encerramento que será invocado para cada iteração do atributo array sob validação e receberá o valor do atributo e o nome do atributo explícito e totalmente expandido. O fechamento deve retornar uma matriz de regras para atribuir ao elemento da matriz:
+
+Às vezes, você pode precisar acessar o valor de um determinado elemento de um array aninhado ao atribuir regras de validação ao atributo. Você pode fazer isso usando o método `Rule::forEach`. O método `forEach` aceita uma clojure que será invocado para cada iteração do atributo array sob validação e receberá o valor do atributo e o nome do atributo explícito e totalmente expandido. O fechamento deve retornar um array de regras para atribuir aos elementos do array:
+
+```php
 use App\Rules\HasPermission;
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regra;
+use Illuminate\Validation\Rule;
+ 
 $validator = Validator::make($request->all(), [
-'companies.*.id' => Rule::forEach(function ($value, $attribute) {
-return [
-Rule::exists(Company:: class, 'id'),
-new HasPermission('manage-company', $value),
-];
-}),
+    'companies.*.id' => Rule::forEach(function ($value, $attribute) {
+        return [
+            Rule::exists(Company::class, 'id'),
+            new HasPermission('manage-company', $value),
+        ];
+    }),
 ]);
-# Índices e posições de mensagens de erro
-Ao validar matrizes, você pode fazer referência ao índice ou posição de um item específico que falhou na validação na mensagem de erro exibida pelo seu aplicativo. Para fazer isso, você pode incluir os espaços reservados :index e :position em sua mensagem de validação personalizada:
+```
+
+# Posições e Índeces de mensagens de erro
+
+Ao validar arrays, você pode fazer referência ao índice ou posição de um item específico que falhou na validação na mensagem de erro exibida pelo seu aplicativo. Para fazer isso, você pode incluir os espaços reservados :index e :position em sua mensagem de validação personalizada:
+
+```php
 use Illuminate\Support\Facades\Validator;
+ 
 $input = [
-'photos' => [
-[
-'name' => 'BeachVacation.jpg',
-'description' => 'Uma foto das minhas férias na praia!',
-],
-[
-'name' => 'GrandCanyon.jpg' ,
-'descrição' => '',
-],
-],
+    'photos' => [
+        [
+            'name' => 'BeachVacation.jpg',
+            'description' => 'A photo of my beach vacation!',
+        ],
+        [
+            'name' => 'GrandCanyon.jpg',
+            'description' => '',
+        ],
+    ],
 ];
+ 
 Validator::validate($input, [
-'photos. .description' => 'required',
+    'photos.*.description' => 'required',
 ], [
-'photos. .description.required' => 'Por favor, descreva a foto #:position.',
+    'photos.*.description.required' => 'Please describe photo #:position.',
 ]);
-Dado o exemplo acima, a validação falhará e o usuário receberá o seguinte erro de “Por favor, descreva a foto nº 2”.
-# Validando Arquivos
-Laravel fornece uma variedade de regras de validação que podem ser usadas para validar arquivos carregados, como mimes, image, min e max. Embora você seja livre para especificar essas regras individualmente ao validar arquivos, o Laravel também oferece um construtor fluente de regras de validação de arquivos que você pode achar conveniente:
+```
+
+
+
+Dado o exemplo acima, a validação falhará e o usuário receberá o seguinte erro  “Please describe photo #2”.
+
+## # Validando Arquivos
+
+Laravel fornece uma variedade de regras de validação que podem ser usadas para validar arquivos em upload, como `mimes`, `image`, `min` e `max`. Embora você seja livre para especificar essas regras individualmente ao validar arquivos, o Laravel também oferece um construtor fluente de regras de validação para arquivos que você pode achar conveniente:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regras\Arquivo;
+use Illuminate\Validation\Rules\File;
+ 
 Validator::validate($input, [
-'attachment' => [
-'required',
-File::types(['mp3', 'wav'])
-->min(1024)
-->max(12 * 1024),
-] ,
+    'attachment' => [
+        'required',
+        File::types(['mp3', 'wav'])
+            ->min(1024)
+            ->max(12 * 1024),
+    ],
 ]);
-Se seu aplicativo aceitar imagens enviadas por seus usuários, você poderá usar o método construtor de imagem da regra de arquivo para indicar que o arquivo enviado deve ser uma imagem. Além disso, a regra de dimensões pode ser usada para limitar as dimensões da imagem:
+```
+
+Se seu aplicativo aceitar imagens enviadas por seus usuários, você poderá usar o método construtor `file` da classe `File` para indicar que o arquivo enviado deve ser uma imagem. Além disso, a regra `dimensions` pode ser usada para limitar as dimensões da imagem:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regras\Arquivo;
+use Illuminate\Validation\Rules\File;
+ 
 Validator::validate($input, [
-'photo' => [
-'required',
-File::image()
-->min(1024)
-->max(12 * 1024)
-->dimensions(Rule::dimensions()- >maxWidth(1000)->maxHeight(500)),
-],
+    'photo' => [
+        'required',
+        File::image()
+            ->min(1024)
+            ->max(12 * 1024)
+            ->dimensions(Rule::dimensions()->maxWidth(1000)->maxHeight(500)),
+    ],
 ]);
-! Mais informações sobre a validação das dimensões da imagem podem ser encontradas na documentação da regra de dimensão.
-# Tipos de arquivo
-Embora você só precise especificar as extensões ao invocar o método de tipos, esse método realmente valida o tipo MIME do arquivo lendo o conteúdo do arquivo e adivinhando seu tipo MIME. Uma lista completa de tipos MIME e suas extensões correspondentes pode ser encontrada no seguinte local:
-https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+```
+
+> Mais informações sobre a validação das dimensões da imagem podem ser encontradas na documentação da regra `dimension`.
+
+#### # Tipos de arquivos
+
+Embora você só precise especificar as extensões ao invocar o método `types`, esse método realmente valida o tipo MIME do arquivo lendo o conteúdo do arquivo e adivinhando seu tipo MIME. Uma lista completa de tipos MIME e suas extensões correspondentes pode ser encontrada no seguinte local: [Mime Types](https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types)
+
 # Validando Senhas
+
 Para garantir que as senhas tenham um nível adequado de complexidade, você pode usar o objeto de regra Senha do Laravel:
 use Illuminate\Support\Facades\Validator;
 use Iluminar\Validação\Regras\Senha;
