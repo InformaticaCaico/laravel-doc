@@ -920,6 +920,32 @@ Abaixo está uma lista de todas as regras de validação disponíveis e suas fun
 
 [Integer](#integer)
 
+[Ip Address](#ip)
+
+[Json](#json)
+
+[Less Than](#less_than)
+
+[Less Than Or Equal](#less_than_equal)
+
+[MAC Address](#mac)
+
+[Max](#max)
+
+[MIME Types](#mime)
+
+[MIME Types By File Extension](#mime_ext)
+
+[Min](#min)
+
+[Min Digits](#mim_digits)
+
+[Multiple Of](#multiple_of)
+
+[Not In](#not_in)
+
+
+
 #### # accepted<a id="accepted"></a> 
 
 O campo em validação deve ser `yes`, `on`, `1` ou `true`. Isso é útil para validar a aceitação de “Termos de Serviço” ou campos semelhantes.
@@ -1311,58 +1337,74 @@ O campo em validação deve ser um número inteiro.
 
 > Esta regra de validação não verifica se a entrada é do tipo de variável “integer”, apenas se a entrada é de um tipo aceito pela regra `FILTER_VALIDATE_INT` do PHP. Se você precisar validar a entrada como sendo um número, use esta regra em combinação com a regra de validação numérica.
 
-# ip
+#### # ip<a id="ip"></a>
 
 O campo em validação deve ser um endereço IP.
 
-# ipv4
+#### # ipv4
 
 O campo em validação deve ser um endereço IPv4.
 
-# ipv6
+#### # ipv6
 
 O campo em validação deve ser um endereço IPv6.
 
-# json
+#### # json <a id="json"></a>
 
 O campo em validação deve ser uma string JSON válida.
 
-# lt:field
+#### # lt:field <a id="less_than"></a>
 
-O campo em validação deve ser menor que o campo fornecido. Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra de tamanho.
+O campo em validação deve ser menor que o campo fornecido. Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra `size`.
 
-# lte:field
+#### # lte:field <a id="less_than_equal"></a>
 
-O campo em validação deve ser menor ou igual ao campo fornecido. Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra de tamanho.
+O campo em validação deve ser menor ou igual ao campo fornecido (*field*). Os dois campos devem ser do mesmo tipo. Strings, números, arrays e arquivos são avaliados usando as mesmas convenções da regra `rule`.
 
-# mac_address
+#### # mac_address <a id="mac"></a>
 
 O campo em validação deve ser um endereço MAC.
 
-# max:value
+#### # max:value <a id="max"></a>
 
-O campo em validação deve ser menor ou igual a um valor máximo. Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra de tamanho.
+O campo em validação deve ser menor ou igual a um valor máximo. Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra `size`.
 
 # max_digits:value
 
-O inteiro sob validação deve ter um comprimento máximo de valor.
+O inteiro sob validação deve ter um comprimento máximo *value*.
 
-# mimetypes:text/plain,…
+# mimetypes:text/plain,… <a id="mime"></a>
 
 O arquivo sob validação deve corresponder a um dos tipos MIME fornecidos:
+
+```php
 'video' => 'mimetypes:video/avi,video/mpeg,video/quicktime'
+```
+
 Para determinar o tipo MIME do arquivo carregado, o conteúdo do arquivo será lido e a estrutura tentará adivinhar o tipo MIME, que pode ser diferente do tipo MIME fornecido pelo cliente.
-# mimes:foo,bar,…
+
+#### # mimes:foo,bar,…
+
 O arquivo em validação deve ter um tipo MIME correspondente a uma das extensões listadas.
-# Uso Básico da Regra MIME
+
+#### # Uso Básico da Regra MIME
+
+```php
 'photo' => 'mimes:jpg,bmp,png'
-Mesmo que você só precise especificar as extensões, esta regra realmente valida o tipo MIME do arquivo lendo o conteúdo do arquivo e adivinhando seu tipo MIME. Uma lista completa de tipos MIME e suas extensões correspondentes pode ser encontrada no seguinte local:
-https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
-# min:value
-O campo em validação deve ter um valor mínimo. Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra de tamanho.
-# min_digits:value
+```
+
+Mesmo que você só precise especificar as extensões, esta regra realmente valida o tipo MIME do arquivo lendo o conteúdo do arquivo e adivinhando seu tipo MIME. Uma lista completa de tipos MIME e suas extensões correspondentes pode ser encontrada no seguinte local: [Mime Types](https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types).
+
+# min:value <a id="min"></a>
+
+O campo em validação deve ter um valor mínimo. Strings, numéricos, arrays e arquivos são avaliados da mesma forma que a regra `size`.
+
+# min_digits:value <a id="min_digits"></a>
+
 O inteiro sob validação deve ter um comprimento mínimo de valor.
+
 # multiple_of:value
+
 O campo sob validação deve ser um múltiplo de value.
 ! A extensão PHP bcmath é necessária para usar a regra multiple_of.
 # not_in:foo,bar,…
