@@ -1956,180 +1956,287 @@ Embora você só precise especificar as extensões ao invocar o método `types`,
 
 # Validando Senhas
 
-Para garantir que as senhas tenham um nível adequado de complexidade, você pode usar o objeto de regra Senha do Laravel:
+Para garantir que as senhas tenham um nível adequado de complexidade, você pode usar o objeto de regra `Password`:
+
+```php
 use Illuminate\Support\Facades\Validator;
-use Iluminar\Validação\Regras\Senha;
+use Illuminate\Validation\Rules\Password;
+ 
 $validator = Validator::make($request->all(), [
-'password' => ['required', 'confirmed', Password::min(8)],
+    'password' => ['required', 'confirmed', Password::min(8)],
 ]);
-O objeto Regra de senha permite que você personalize facilmente os requisitos de complexidade de senha para seu aplicativo, como especificar que as senhas exigem pelo menos uma letra, número, símbolo ou caracteres com maiúsculas e minúsculas:
-// Requer pelo menos 8 caracteres…
-Senha::min(8)
-// Requer pelo menos uma letra…
-Senha::min(8)->letters()
-// Requer pelo menos uma letra maiúscula e uma minúscula…
+```
+
+O objeto da regra `Password` permite que você personalize facilmente os requisitos de complexidade de senha para seu aplicativo, como especificar que as senhas exigem pelo menos uma letra, número, símbolo ou caracteres com maiúsculas e minúsculas:
+
+```php
+// Require at least 8 characters...
+Password::min(8)
+ 
+// Require at least one letter...
+Password::min(8)->letters()
+ 
+// Require at least one uppercase and one lowercase letter...
 Password::min(8)->mixedCase()
-// Requer pelo menos um número…
-Senha::min(8)->numbers()
-// Requer pelo menos um símbolo…
-Senha::min(8)->symbols()
-Além disso, você pode garantir que uma senha não tenha sido comprometida em um vazamento de violação de dados de senha pública usando o método não comprometido:
+ 
+// Require at least one number...
+Password::min(8)->numbers()
+ 
+// Require at least one symbol...
+Password::min(8)->symbols()
+```
+
+
+Além disso, você pode garantir que uma senha não tenha sido comprometida em um vazamento de violação de dados de senha pública usando o método `uncompromised`:
+
+```php
 Senha::min(8)->uncompromised()
-Internamente, o objeto de regra Password usa o modelo k-Anonymity para determinar se uma senha vazou por meio do serviço haveibeenpwned.com sem sacrificar a privacidade ou a segurança do usuário.
-Por padrão, se uma senha aparecer pelo menos uma vez em um vazamento de dados, ela será considerada comprometida. Você pode personalizar esse limite usando o primeiro argumento do método não comprometido:
+```
+
+Internamente, o objeto de regra `Password` usa o modelo [`k-Anonymity`](https://en.wikipedia.org/wiki/K-anonymity) para determinar se uma senha vazou por meio do serviço [`haveibeenpwned.com`](https://haveibeenpwned.com) sem sacrificar a privacidade ou a segurança do usuário.
+
+Por padrão, se uma senha aparecer pelo menos uma vez em um vazamento de dados, ela será considerada comprometida. Você pode personalizar esse limite usando o primeiro argumento do método `uncompromised`:
+
+```php
 // Certifique-se de que a senha apareça menos de 3 vezes no mesmo vazamento de dados…
 Password::min(8)->uncompromised(3);
+```
+
 Claro, você pode encadear todos os métodos nos exemplos acima:
+
+```php
 Password::min(8)
-->letters()
-->mixedCase()
-->numbers()
-->symbols()
-->uncompromised()
-# Definindo regras de senha padrão
-Você pode achar conveniente especificar as regras de validação padrão para senhas em um único local de seu aplicativo. Você pode fazer isso facilmente usando o método Password::defaults, que aceita um encerramento. O encerramento dado ao método defaults deve retornar a configuração padrão da regra Password. Normalmente, a regra de padrões deve ser chamada no método de inicialização de um dos provedores de serviço do seu aplicativo:
-use Iluminar\Validação\Regras\Senha;
+    ->letters()
+    ->mixedCase()
+    ->numbers()
+    ->symbols()
+    ->uncompromised()
+```
+
+#### # Definindo regras de senha padrão
+
+Você pode achar conveniente especificar as regras de validação padrão para senhas em um único local de seu aplicativo. Você pode fazer isso facilmente usando o método `Password::defaults`, que aceita uma clojure. A clojure dada ao método `defaults` deve retornar a configuração padrão da regra `Password`. Normalmente, a regra `defaults` deve ser chamada no método `boot` de um dos provedores de serviço do seu aplicativo:
+
+```php
+use Illuminate\Validation\Rules\Password;
+ 
 /**
-•	Bootstrap qualquer serviço de aplicativo.
-•	
-•	@return void
-*/
+ * Bootstrap any application services.
+ *
+ * @return void
+ */
 public function boot()
 {
-Password::defaults(function() {
-$rule = Password::min(8);
-•	 return $this->app->isProduction()
-•	             ? $rule->mixedCase()->uncompromised()
-•	             : $rule;
-});
+    Password::defaults(function () {
+        $rule = Password::min(8);
+ 
+        return $this->app->isProduction()
+                    ? $rule->mixedCase()->uncompromised()
+                    : $rule;
+    });
 }
-Então, quando você quiser aplicar as regras padrão a uma senha específica em validação, você pode invocar o método defaults sem argumentos:
+```
+
+
+Então, quando você quiser aplicar as regras padrão a uma senha específica em validação, você pode invocar o método `defaults` sem argumentos:
+
+```php
 'password' => ['required', Password::defaults()],
-Ocasionalmente, você pode querer anexar regras de validação adicionais às suas regras de validação de senha padrão. Você pode usar o método de regras para fazer isso:
+```
+
+Ocasionalmente, você pode anexar regras de validação adicionais às suas regras de validação de senha padrão. Você pode usar o método `rules` para fazer isso:
+
+```php
 use App\Rules\ZxcvbnRule;
+ 
 Password::defaults(function () {
-$rule = Password::min(8)->rules([new ZxcvbnRule]);
-// ...
+    $rule = Password::min(8)->rules([new ZxcvbnRule]);
+ 
+    // ...
 });
-# Regras de validação personalizadas
-#usando objetos de regra
-Laravel fornece uma variedade de regras de validação úteis; no entanto, você pode querer especificar algumas de sua preferência. Um método de registro de regras de validação personalizadas é usar objetos de regra. Para gerar um novo objeto de regra, você pode usar o comando make:rule Artisan. Vamos usar este comando para gerar uma regra que verifica se uma string é maiúscula. O Laravel colocará a nova regra no diretório app/Rules. Se este diretório não existir, o Laravel irá criá-lo quando você executar o comando Artisan para criar sua regra:
+```
+
+## # Regras de validação personalizadas
+
+### # Usando o objeto Rule
+
+Laravel fornece uma variedade de regras de validação úteis; no entanto, você pode especificar algumas de sua preferência. Uma maneira de registrar regras de validação personalizadas é usar objetos Rule. Para gerar um novo objeto rule, você pode usar o comando do Artisan `make:rule`. Vamos usar este comando para gerar uma regra que verifica se uma string é maiúscula. O Laravel colocará a nova regra no diretório `app/Rules`. Se este diretório não existir, o Laravel irá criá-lo quando você executar o comando Artisan para criar sua regra:
+
+```php
 php artesão make:rule Maiúsculas --invokable
-Uma vez que a regra foi criada, estamos prontos para definir seu comportamento. Um objeto de regra contém um único método: __invoke. Este método recebe o nome do atributo, seu valor e um callback que deve ser invocado em caso de falha com a mensagem de erro de validação:
+```
+
+Uma vez que a regra foi criada, estamos prontos para definir seu comportamento. Um objeto de regra contém um único método: `__invoke`. Este método recebe o nome do atributo, seu valor e um callback que deve ser invocado em caso de falha com a mensagem de erro de validação:
+
+```php
 <?php
+ 
 namespace App\Rules;
+ 
 use Illuminate\Contracts\Validation\InvokableRule;
+ 
 class Uppercase implements InvokableRule
 {
-/**
-* Executa a regra de validação.
-*
-* @param string $attribute
-* @param mixed $value
-* @param \Closure $fail
-* @return void
-*/
-public function __invoke($attribute, $value, $fail)
-{
-if (strtoupper($value) !== $value) {
-$fail('O :attribute deve ser maiúsculo.');
+    /**
+     * Run the validation rule.
+     *
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @param  \Closure  $fail
+     * @return void
+     */
+    public function __invoke($attribute, $value, $fail)
+    {
+        if (strtoupper($value) !== $value) {
+            $fail('The :attribute must be uppercase.');
+        }
+    }
 }
-}
-}
-Depois que a regra for definida, você pode anexá-la a um validador passando uma instância do objeto de regra com suas outras regras de validação:
-use App\Regras\Maiúsculas;
+```
+
+Depois que a regra for definida, você pode anexá-la a um validador passando uma instância do objeto rule com suas outras regras de validação:
+
+```php
+use App\Rules\Uppercase;
+ 
 $request->validate([
-'name' => ['required', 'string', new Maiúsculas],
+    'name' => ['required', 'string', new Uppercase],
 ]);
-Traduzindo Mensagens de Validação
-Em vez de fornecer uma mensagem de erro literal para o encerramento $fail, você também pode fornecer uma chave de string de tradução e instruir o Laravel a traduzir a mensagem de erro:
-if (strtoupper($valor) !== $valor) {
-$fail('validation.uppercase')->translate();
+```
+
+**Traduzindo Mensagens de Validação**
+
+Em vez de fornecer uma mensagem de erro literal para o clojure `$fail`, você também pode fornecer uma chave string de tradução e instruir o Laravel a traduzir a mensagem de erro:
+
+```php
+if (strtoupper($value) !== $value) {
+    $fail('validation.uppercase')->translate();
 }
+```
+
 Se necessário, você pode fornecer substituições de espaço reservado e o idioma preferido como primeiro e segundo argumentos para o método de tradução:
+
+```php
 $fail('validation.location')->translate([
-'value' => $this->value,
+    'value' => $this->value,
 ], 'fr')
-Acessando dados adicionais
-Se sua classe de regra de validação personalizada precisar acessar todos os outros dados que estão sendo validados, sua classe de regra pode implementar a interface Illuminate\Contracts\Validation\DataAwareRule. Essa interface requer que sua classe defina um método setData. Este método será automaticamente invocado pelo Laravel (antes da validação continuar) com todos os dados em validação:
+```
+
+**Acessando dados adicionais**
+
+Se sua classe de validação personalizada precisar acessar todos os outros dados que estão sendo validados, sua classe de regra pode implementar a interface `Illuminate\Contracts\Validation\DataAwareRule`. Essa interface requer que sua classe defina um método `setData`. Este método será automaticamente invocado pelo Laravel (antes da validação continuar) com todos os dados em validação:
+
+```php
 <?php
+ 
 namespace App\Rules;
+ 
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\InvokableRule;
-class Uppercase implementa DataAwareRule, InvokableRule
+ 
+class Uppercase implements DataAwareRule, InvokableRule
 {
-/**
-* Todos os dados sob validação.
-*
-* @var array
-*/
-protected $data = [];
-// ...
-
-/**
- * Set the data under validation.
- *
- * @param  array  $data
- * @return $this
- */
-public function setData($data)
-{
-    $this->data = $data;
-
-    return $this;
+    /**
+     * All of the data under validation.
+     *
+     * @var array
+     */
+    protected $data = [];
+ 
+    // ...
+ 
+    /**
+     * Set the data under validation.
+     *
+     * @param  array  $data
+     * @return $this
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+ 
+        return $this;
+    }
 }
-}
-Ou, se sua regra de validação requer acesso à instância do validador que está realizando a validação, você pode implementar a interface ValidatorAwareRule:
+```
+
+Ou, se sua regra de validação requer acesso à instância do validador que está realizando a validação, você pode implementar a interface `ValidatorAwareRule`:
+
+```php
 <?php
+ 
 namespace App\Rules;
+ 
 use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Contracts\Validation\ValidatorAwareRule;
-class Uppercase implementa InvokableRule, ValidatorAwareRule
+ 
+class Uppercase implements InvokableRule, ValidatorAwareRule
 {
-/**
-* A instância do validador.
-*
-* @var \Illuminate\Validation\Validator
-*/
-protected $validator;
-// ...
-
-/**
- * Set the current validator.
- *
- * @param  \Illuminate\Validation\Validator  $validator
- * @return $this
- */
-public function setValidator($validator)
-{
-    $this->validator = $validator;
-
-    return $this;
+    /**
+     * The validator instance.
+     *
+     * @var \Illuminate\Validation\Validator
+     */
+    protected $validator;
+ 
+    // ...
+ 
+    /**
+     * Set the current validator.
+     *
+     * @param  \Illuminate\Validation\Validator  $validator
+     * @return $this
+     */
+    public function setValidator($validator)
+    {
+        $this->validator = $validator;
+ 
+        return $this;
+    }
 }
-}
-# Usando Closures
-Se você só precisa da funcionalidade de uma regra personalizada uma vez em todo o seu aplicativo, você pode usar um closure em vez de um objeto de regra. A closure recebe o nome do atributo, o valor do atributo e um callback $fail que deve ser chamado se a validação falhar:
+```
+
+### # Usando Closures
+
+Se você só precisa da funcionalidade de uma regra personalizada uma vez em todo o seu aplicativo, você pode usar uma closure em vez de um objeto rule. A closure recebe o nome do atributo, o valor do atributo e um callback `$fail` que deve ser chamado se a validação falhar:
+
+```php
 use Illuminate\Support\Facades\Validator;
+ 
 $validator = Validator::make($request->all(), [
-'title' => [
-'required',
-'max:255',
-function ($attribute, $value, $fail) {
-if ($value = == 'foo') {
-$fail('O '.$attribute.' é inválido.');
-}
-},
-],
+    'title' => [
+        'required',
+        'max:255',
+        function ($attribute, $value, $fail) {
+            if ($value === 'foo') {
+                $fail('The '.$attribute.' is invalid.');
+            }
+        },
+    ],
 ]);
-# Regras implícitas
-Por padrão, quando um atributo que está sendo validado não está presente ou contém uma string vazia, as regras normais de validação, incluindo regras personalizadas, não são executadas. Por exemplo, a regra exclusiva não será executada em uma string vazia:
+```
+
+### # Regras implícitas
+
+Por padrão, quando um atributo que está sendo validado não está presente ou contém uma string vazia, as regras normais de validação, incluindo regras personalizadas, não são executadas. Por exemplo, a regra `unique` não será executada em uma string vazia:
+
+```php
 use Illuminate\Support\Facades\Validator;
-$regras = ['nome' => 'único:usuários,nome'];
-$input = ['nome' => ''];
-Validator::make($input, $rules)->passes(); // verdadeiro
-Para que uma regra personalizada seja executada mesmo quando um atributo está vazio, a regra deve implicar que o atributo é obrigatório. Para gerar rapidamente um novo objeto de regra implícito, você pode usar o comando make:rule Artisan com a opção --implicit:
+ 
+$rules = ['name' => 'unique:users,name'];
+ 
+$input = ['name' => ''];
+ 
+Validator::make($input, $rules)->passes(); // true
+```
+
+Para que uma regra personalizada seja executada mesmo quando um atributo está vazio, a regra deve implicar que o atributo é obrigatório. Para gerar rapidamente um novo objeto de regra implícito, você pode usar o comando Artisan `make:rule` com a opção `--implicit`:
+
+```php
 php artesão make:rule Maiúsculas --invokable --implicit
-! Uma regra “implícita” implica apenas que o atributo é obrigatório. Se ele realmente invalida um atributo ausente ou vazio, depende de você.
+```
+
+> Uma regra “implícita” implica apenas que o atributo é obrigatório. Se ele realmente invalida um atributo ausente ou vazio, depende de você.
 
 
 
