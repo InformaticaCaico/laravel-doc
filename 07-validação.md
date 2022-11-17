@@ -1,41 +1,4 @@
 # # Validação
-
-    Introdução
-    Primeiros passos na validação
-        Definindo Rotas
-        Criando um Controladorr
-        Escrevendo a logica de Validação
-        Exibindo os erros de Validação
-        Repopulando Formulários
-        Uma nota sobre campos Opcionais
-        Formato de resposta de erro de validação
-    Validação de solicitação de formulário
-        Criando solicitação de formulário
-        Autorizando solicitação de Formulários
-        Customizando mensagens de erro
-        Preparando dados de entrada para validação
-    Criando validadores manualmente
-        Redirecionamento Automático
-        Sacos de erro nomeados
-        Customizando mensagens de erro
-        Após validação
-    Trabalhando com a validação dos dados entrados
-    Trabalhando com mensagens de Erro
-        Especificando mensagens personalizadas em arquivos de idioma
-        Especificando atributos em arquivos de idioma
-        Especificando valores em arquivos de idioma
-    Regras de validação disponíveis
-    Adicionando Regras Condicionalmente
-    Validando Matrizes
-        Validando a entrada de matriz aninhada
-        Índices e posições de mensagens de erro
-    Validando Arquivos
-    Validando Senhas
-    Customizando regras de Validação
-        Usando regras de objetos
-        Usando clausuras
-        Regras implícitas
-        
         
 ## # Introdução
 
